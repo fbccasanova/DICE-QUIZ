@@ -351,9 +351,7 @@
   </div>
 
 <script>
-// ══════════════════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════════════════
+
 const CONFIG = {
   WIN_SPOT:          20,
   ANIMATION_DELAY: 4000,   // ms — wait for Hoverlay trap/portal animation
@@ -376,11 +374,12 @@ const KEYS = {
   P1:           'flourish_p1_pos',
   P2:           'flourish_p2_pos',
   PLAYER:       'flourish_current_player',
+  ROLLS:        'flourish_total_rolls',
   QUIZ_CONTEXT: 'frd_quiz_context',
   QUIZ_RESULT:  'frd_quiz_result',
 };
 
-// Dice face-to-rotation mapping (original logic)
+
 const faceRotations = {
   1: { x: 0,   y: 0   },
   2: { x: 0,   y: -90 },
@@ -390,9 +389,7 @@ const faceRotations = {
   6: { x: 90,  y: 0   },
 };
 
-// ══════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════
+
 let currentPlayer = parseInt(localStorage.getItem(KEYS.PLAYER)) || 1;
 let positions = {
   1: parseInt(localStorage.getItem(KEYS.P1)) || 0,
@@ -402,14 +399,13 @@ let isRolling      = false;
 let waitingForQuiz = false;
 let currentX = 0, currentY = 0;
 let logEntries = [];
+  
+let totalRolls = parseInt(localStorage.getItem('flourish_total_rolls')) || 0;
 
-// ══════════════════════════════════════════════════
-//  HOVERLAY TRIGGER QUEUE
-// ══════════════════════════════════════════════════
+
 const HQ = {
   queue: [], running: false,
-  // MIN_GAP: minimum ms between every trigger so Hoverlay's WebView
-  // doesn't drop rapid-fire location.href changes.
+
   MIN_GAP: 350,
 
   add(trigger, delayAfter = 0) {
@@ -421,7 +417,7 @@ const HQ = {
     while (this.queue.length) {
       const { trigger, delayAfter } = this.queue.shift();
       this._fire(trigger);
-      // Always wait at least MIN_GAP so Hoverlay processes each event
+    
       await sleep(Math.max(this.MIN_GAP, delayAfter));
     }
     this.running = false;
@@ -444,9 +440,7 @@ const HQ = {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ══════════════════════════════════════════════════
-//  UTILITIES
-// ══════════════════════════════════════════════════
+
 function addLog(msg, type) {
   logEntries.unshift({ msg, type });
   if (logEntries.length > 3) logEntries.pop();
@@ -464,7 +458,7 @@ function setStatus(text, type = '') {
   b.className = `status-badge${type ? ' ' + type : ''}`;
 }
 
-function debugLog() {} // removed — no debug panel
+function debugLog() {} 
 
 function saveState() {
   localStorage.setItem(KEYS.P1,     positions[1]);
@@ -506,18 +500,20 @@ function updateUI() {
   saveState();
 }
 
-// ══════════════════════════════════════════════════
-//  ROLL
-// ══════════════════════════════════════════════════
+
 function rollDice() {
   if (isRolling || waitingForQuiz) return;
   isRolling = true;
   updateUI();
 
-  const result = Math.floor(Math.random() * 6) + 1;
+  
+  const maxRoll = totalRolls < 2 ? 4 : 6;
+  const result  = Math.floor(Math.random() * maxRoll) + 1;
+  totalRolls++;
+  localStorage.setItem('flourish_total_rolls', totalRolls);
   const p = currentPlayer;
 
-  // Spin the cube (original logic)
+
   const spinsX = (Math.floor(Math.random() * 4) + 5) * 360;
   const spinsY = (Math.floor(Math.random() * 4) + 5) * 360;
   currentX += spinsX + faceRotations[result].x - (currentX % 360);
@@ -551,9 +547,7 @@ function rollDice() {
   }, CONFIG.DICE_ANIM_MS);
 }
 
-// ══════════════════════════════════════════════════
-//  SPECIAL SPOT PROCESSING
-// ══════════════════════════════════════════════════
+
 async function processSpecialSpot(player, spot) {
   const special = SPECIAL_SPOTS[spot];
   if (!special) { setStatus('Ready to roll!'); return; }
@@ -563,47 +557,42 @@ async function processSpecialSpot(player, spot) {
     addLog(`P${player} hit a Challenge on Spot ${spot}!`, 'challenge');
     HQ.add(`challenge-spot-${spot}`);
     document.getElementById('challenge-btn').classList.add('visible');
-    return; // stays locked until quiz resolves or is cancelled
+    return; 
   }
 
-  // ── Step 1: Show the special spot label & trigger Hoverlay animation ──
+  
   const badgeType = special.type === 'trap' ? 'trap' : special.type === 'portal' ? 'portal' : 'shortcut';
   setStatus(special.label, badgeType);
   addLog(`Spot ${spot}: ${special.label}`, special.type);
   document.getElementById('message-box').textContent = special.label;
 
-  // Fire the special animation trigger — this tells Hoverlay to play
-  // the trap / portal / shortcut AR animation on the CURRENT spot.
+
   HQ.add(`special-${special.type}-${spot}`);
 
-  // ── Step 2: Wait for Hoverlay animation to finish ──
-  // CONFIG.ANIMATION_DELAY (default 4000ms) must be >= your AR animation length.
+
   await sleep(CONFIG.ANIMATION_DELAY);
 
-  // ── Step 3: Calculate final position ──
+
   const finalPos = special.type === 'portal'
     ? special.to
     : Math.max(1, Math.min(CONFIG.WIN_SPOT, spot + special.delta));
 
-  // ── Step 4: Update state and send the FINAL spot trigger to Hoverlay ──
+  
   positions[player] = finalPos;
   document.getElementById('position-text').textContent = `Spot: ${finalPos}`;
   addLog(`→ P${player} now at Spot ${finalPos}`, special.type);
   setStatus(`Now at Spot ${finalPos}`);
 
-  // This is the trigger Hoverlay needs to move the AR marker to the new spot.
+
   HQ.add(`spot-${finalPos}`);
   updateUI();
 
   if (finalPos >= CONFIG.WIN_SPOT) { handleWin(player); return; }
 
-  // ── Step 5: Check if the NEW spot is also special (e.g. shortcut lands on a challenge) ──
   await processSpecialSpot(player, finalPos);
 }
 
-// ══════════════════════════════════════════════════
-//  QUIZ BRIDGE
-// ══════════════════════════════════════════════════
+
 function launchQuiz() {
   const p      = currentPlayer;
   const spot   = positions[p];
@@ -680,9 +669,7 @@ async function applyQuizResult(result) {
   updateUI();
 }
 
-// ══════════════════════════════════════════════════
-//  PLAYER SWITCH, MANUAL ADJUST, WIN, RESET
-// ══════════════════════════════════════════════════
+
 function togglePlayer() {
   if (isRolling || waitingForQuiz) return;
   currentPlayer = currentPlayer === 1 ? 2 : 1;
@@ -713,8 +700,9 @@ function confirmReset() {
   if (!confirm('Reset BOTH players?')) return;
   positions[1] = 0; positions[2] = 0;
   currentPlayer = 1; isRolling = false; waitingForQuiz = false;
+  totalRolls = 0;
   logEntries = [];
-  [KEYS.P1, KEYS.P2, KEYS.PLAYER, KEYS.QUIZ_CONTEXT, KEYS.QUIZ_RESULT]
+  [KEYS.P1, KEYS.P2, KEYS.PLAYER, KEYS.ROLLS, KEYS.QUIZ_CONTEXT, KEYS.QUIZ_RESULT]
     .forEach(k => localStorage.removeItem(k));
   document.getElementById('win-overlay').classList.remove('active');
   document.getElementById('quiz-overlay').classList.remove('active');
@@ -728,9 +716,6 @@ function confirmReset() {
   updateUI();
 }
 
-// ══════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════
 document.getElementById('dice-scene').addEventListener('click', rollDice);
 updateProgressTrack();
 updateUI();
