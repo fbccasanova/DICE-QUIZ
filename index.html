@@ -436,6 +436,10 @@ let logEntries = [];
 // ══════════════════════════════════════════════════
 const HQ = {
   queue: [], running: false,
+  // MIN_GAP: minimum ms between every trigger so Hoverlay's WebView
+  // doesn't drop rapid-fire location.href changes.
+  MIN_GAP: 350,
+
   add(trigger, delayAfter = 0) {
     this.queue.push({ trigger, delayAfter });
     if (!this.running) this._run();
@@ -445,15 +449,23 @@ const HQ = {
     while (this.queue.length) {
       const { trigger, delayAfter } = this.queue.shift();
       this._fire(trigger);
-      if (delayAfter > 0) await sleep(delayAfter);
+      // Always wait at least MIN_GAP so Hoverlay processes each event
+      await sleep(Math.max(this.MIN_GAP, delayAfter));
     }
     this.running = false;
   },
   _fire(trigger) {
-    // Method 1: Hoverlay space:// scheme
-    try { window.location.href = `space://do?action=send_event&event_message=${trigger}`; } catch(_) {}
-    // Method 2: postMessage to parent (fallback)
-    try { window.parent.postMessage({ hoverlay: trigger }, '*'); } catch(_) {}
+    // Use iframe-only approach — each iframe is its own navigation context
+    // so rapid triggers don't cancel each other (unlike window.location.href).
+    try {
+      const f = document.createElement('iframe');
+      f.style.cssText = 'display:none;width:0;height:0;border:none;position:absolute;';
+      f.src = `space://do?action=send_event&event_message=${encodeURIComponent(trigger)}`;
+      document.body.appendChild(f);
+      setTimeout(() => { try { f.remove(); } catch(_){} }, 1000);
+    } catch(_) {}
+    // postMessage fallback for browser testing outside Hoverlay
+    try { window.parent.postMessage({ hoverlay: trigger, type: 'hoverlay-trigger' }, '*'); } catch(_) {}
     debugLog(trigger, '#C1FF72', 'fired');
   },
 };
@@ -596,23 +608,32 @@ async function processSpecialSpot(player, spot) {
     return; // stays locked until quiz resolves or is cancelled
   }
 
-  // Trap / Portal / Shortcut
-  setStatus(special.label, special.type === 'trap' ? 'trap' : special.type === 'portal' ? 'portal' : 'shortcut');
+  // ── Step 1: Show the special spot label & trigger Hoverlay animation ──
+  const badgeType = special.type === 'trap' ? 'trap' : special.type === 'portal' ? 'portal' : 'shortcut';
+  setStatus(special.label, badgeType);
   addLog(`Spot ${spot}: ${special.label}`, special.type);
+  document.getElementById('message-box').textContent = special.label;
+
+  // Fire the special animation trigger — this tells Hoverlay to play
+  // the trap / portal / shortcut AR animation on the CURRENT spot.
   HQ.add(`special-${special.type}-${spot}`);
 
-  // ── Wait for Hoverlay animation ──
-  document.getElementById('message-box').textContent = special.label;
+  // ── Step 2: Wait for Hoverlay animation to finish ──
+  // CONFIG.ANIMATION_DELAY (default 4000ms) must be >= your AR animation length.
   await sleep(CONFIG.ANIMATION_DELAY);
 
+  // ── Step 3: Calculate final position ──
   const finalPos = special.type === 'portal'
     ? special.to
     : Math.max(1, Math.min(CONFIG.WIN_SPOT, spot + special.delta));
 
+  // ── Step 4: Update state and send the FINAL spot trigger to Hoverlay ──
   positions[player] = finalPos;
   document.getElementById('position-text').textContent = `Spot: ${finalPos}`;
   addLog(`→ P${player} now at Spot ${finalPos}`, special.type);
   setStatus(`Now at Spot ${finalPos}`);
+
+  // This is the trigger Hoverlay needs to move the AR marker to the new spot.
   HQ.add(`spot-${finalPos}`);
   updateUI();
 
