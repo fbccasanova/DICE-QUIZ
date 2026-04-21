@@ -20,7 +20,6 @@
       box-sizing: border-box;
     }
 
-    /* ── CONTEXT BANNER (spot + player + bonus) ── */
     .context-banner {
       display: flex;
       gap: 10px;
@@ -46,7 +45,6 @@
       color: #FF66C4;
     }
 
-    /* ── QUIZ CARD ── */
     .quiz-card {
       background-color: #1a2a6c;
       padding: 30px;
@@ -65,7 +63,6 @@
       letter-spacing: 2px;
     }
 
-    /* ── TIMER BAR ── */
     .timer-wrap {
       background: rgba(255,255,255,0.1);
       border-radius: 99px;
@@ -81,7 +78,6 @@
     }
     .timer-bar.warning { background: #FF66C4; }
 
-    /* ── QUESTION ── */
     .question-container {
       min-height: 100px;
       display: flex;
@@ -95,7 +91,6 @@
       font-weight: 400;
     }
 
-    /* ── BUTTONS ── */
     .options {
       display: flex;
       gap: 15px;
@@ -123,7 +118,6 @@
     .btn.correct-btn  { background-color: #c1ff72; }
     .btn.wrong-btn    { background-color: #ff4444; color: white; }
 
-    /* ── FEEDBACK ── */
     #feedback {
       margin-top: 25px;
       font-size: 20px;
@@ -134,7 +128,6 @@
     .correct { color: #c1ff72; }
     .wrong    { color: #ff0503; }
 
-    /* ── VERIFICATION BOX ── */
     .verification {
       margin-top: 20px;
       background: rgba(255, 255, 255, 0.1);
@@ -152,7 +145,6 @@
       color: #c1ff72;
     }
 
-    /* ── RETURN NOTICE ── */
     .return-notice {
       display: none;
       margin-top: 16px;
@@ -171,7 +163,6 @@
     }
     .return-notice.visible { display: block; }
 
-    /* ── ERROR / LOADING STATES ── */
     .state-card {
       background-color: #1a2a6c;
       padding: 30px;
@@ -198,28 +189,26 @@
   </style>
 </head>
 <body>
-
-  <!-- LOADING STATE -->
+  
   <div class="state-card visible" id="loading-card">
     <div class="loading-spinner"></div>
     <h2>Loading Challenge…</h2>
     <p>Fetching your question from the game controller.</p>
   </div>
 
-  <!-- ERROR STATE -->
   <div class="state-card" id="error-card">
     <h2>⚠️ No Challenge Active</h2>
     <p>Please launch this quiz from the FLOURISH ROLL DICE controller by landing on a Challenge spot (Spot 10 or 15) and tapping <strong>Open Challenge!</strong></p>
   </div>
 
-  <!-- CONTEXT BANNER -->
+
   <div class="context-banner" id="context-banner" style="display:none;">
     <div class="context-pill" id="pill-spot">SPOT 10</div>
     <div class="context-pill" id="pill-player">PLAYER 1</div>
     <div class="context-pill pink" id="pill-bonus">+1 BONUS MOVE</div>
   </div>
 
-  <!-- QUIZ CARD -->
+  
   <div class="quiz-card" id="quiz-card" style="display:none;">
     <h1>TRUE OR FALSE</h1>
 
@@ -239,31 +228,23 @@
     <div id="feedback"></div>
   </div>
 
-  <!-- VERIFICATION -->
   <div class="verification" id="verification-box" style="display:none;">
     <h2>Fact Check &amp; Sources</h2>
     <div id="fact-source">Answer the question to unlock the nutritional science behind it!</div>
   </div>
-
-  <!-- RETURN NOTICE -->
+  
   <div class="return-notice" id="return-notice">
     ← Switch back to the controller tab — your result has been sent automatically.
   </div>
 
 <script>
-// ══════════════════════════════════════════════════
-//  STORAGE KEYS (must match controller)
-// ══════════════════════════════════════════════════
+
 const KEYS = {
   QUIZ_CONTEXT: 'frd_quiz_context',
   QUIZ_RESULT:  'frd_quiz_result',
 };
 
-// ══════════════════════════════════════════════════
-//  FULL VERIFIED QUESTION DATABASE  (28 T/F items)
-//  Sources: Mayo Clinic, AHA, Harvard Health,
-//           NIH, Johns Hopkins, WebMD, USDA, CDC
-// ══════════════════════════════════════════════════
+//Quiz questions//
 const QUIZ_DATA = [
   {
     q:      "Fresh vegetables are always healthier than frozen vegetables.",
@@ -435,18 +416,14 @@ const QUIZ_DATA = [
   },
 ];
 
-// ══════════════════════════════════════════════════
-//  GLOBAL STATE
-// ══════════════════════════════════════════════════
+
 let quizContext   = null;
 let currentQ      = null;
 let answered      = false;
 let timerHandle   = null;
 const TIMER_SECS  = 30;
 
-// ══════════════════════════════════════════════════
-//  TIMER
-// ══════════════════════════════════════════════════
+
 function startTimer() {
   const bar = document.getElementById('timer-bar');
   let remaining = TIMER_SECS;
@@ -460,7 +437,7 @@ function startTimer() {
     if (pct < 30) bar.classList.add('warning');
     if (remaining <= 0) {
       clearInterval(timerHandle);
-      if (!answered) handleUserChoice(null); // time's up → wrong
+      if (!answered) handleUserChoice(null);
     }
   }, 150);
 }
@@ -469,9 +446,6 @@ function stopTimer() {
   if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
 }
 
-// ══════════════════════════════════════════════════
-//  ANSWER HANDLER
-// ══════════════════════════════════════════════════
 function handleUserChoice(userChoice) {
   if (answered) return;
   answered = true;
@@ -480,18 +454,17 @@ function handleUserChoice(userChoice) {
   const isCorrect = (userChoice === currentQ.a);
   const bonus     = isCorrect ? quizContext.bonus : 0;
 
-  // Disable buttons + colour feedback
   document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
   const feedback = document.getElementById('feedback');
 
   if (userChoice === null) {
-    // Time expired
+   
     feedback.innerHTML = "⏱ TIME'S UP!";
     feedback.className = 'wrong';
   } else if (isCorrect) {
     feedback.innerHTML = `✓ CORRECT! +${bonus} move${bonus > 1 ? 's' : ''} earned!`;
     feedback.className = 'correct';
-    // Highlight the correct button
+    
     document.getElementById(userChoice ? 'btn-true' : 'btn-false').classList.add('correct-btn');
   } else {
     feedback.innerHTML = '✗ WRONG!';
@@ -525,9 +498,6 @@ function handleUserChoice(userChoice) {
   try { localStorage.setItem(KEYS.QUIZ_RESULT, JSON.stringify(result)); } catch(e) {}
 }
 
-// ══════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
   const loading    = document.getElementById('loading-card');
   const errorCard  = document.getElementById('error-card');
@@ -538,7 +508,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     loading.classList.remove('visible');
 
-    // Read context from localStorage
+
     let ctx = null;
     try { ctx = JSON.parse(localStorage.getItem(KEYS.QUIZ_CONTEXT) || 'null'); } catch(_) {}
 
@@ -558,7 +528,7 @@ window.addEventListener('DOMContentLoaded', () => {
     quizCard.style.display = 'block';
     verifyBox.style.display = 'block';
 
-    // Pick question (seed by spot + player + minute to vary per round)
+  
     const seed = (ctx.spot * 100 + ctx.player + Math.floor(Date.now() / 60000)) % QUIZ_DATA.length;
     currentQ   = QUIZ_DATA[seed];
 
