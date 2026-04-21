@@ -637,12 +637,12 @@ async function processSpecialSpot(player, spot) {
   HQ.add(`spot-${finalPos}`);
   updateUI();
 
-  if (finalPos >= CONFIG.WIN_SPOT) handleWin(player);
+  if (finalPos >= CONFIG.WIN_SPOT) { handleWin(player); return; }
+
+  // ── Step 5: Check if the NEW spot is also special (e.g. shortcut lands on a challenge) ──
+  await processSpecialSpot(player, finalPos);
 }
 
-// ══════════════════════════════════════════════════
-//  QUIZ BRIDGE
-// ══════════════════════════════════════════════════
 function launchQuiz() {
   const p      = currentPlayer;
   const spot   = positions[p];
@@ -719,9 +719,7 @@ async function applyQuizResult(result) {
   updateUI();
 }
 
-// ══════════════════════════════════════════════════
-//  PLAYER SWITCH, MANUAL ADJUST, WIN, RESET
-// ══════════════════════════════════════════════════
+
 function togglePlayer() {
   if (isRolling || waitingForQuiz) return;
   currentPlayer = currentPlayer === 1 ? 2 : 1;
@@ -767,9 +765,6 @@ function confirmReset() {
   updateUI();
 }
 
-// ══════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════
 document.getElementById('dice-scene').addEventListener('click', rollDice);
 updateProgressTrack();
 updateUI();
