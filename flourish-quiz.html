@@ -45,6 +45,7 @@
       color: #FF66C4;
     }
 
+    /* ── QUIZ CARD ── */
     .quiz-card {
       background-color: #1a2a6c;
       padding: 30px;
@@ -63,6 +64,7 @@
       letter-spacing: 2px;
     }
 
+    /* ── TIMER BAR ── */
     .timer-wrap {
       background: rgba(255,255,255,0.1);
       border-radius: 99px;
@@ -78,6 +80,7 @@
     }
     .timer-bar.warning { background: #FF66C4; }
 
+    /* ── QUESTION ── */
     .question-container {
       min-height: 100px;
       display: flex;
@@ -91,6 +94,7 @@
       font-weight: 400;
     }
 
+    /* ── BUTTONS ── */
     .options {
       display: flex;
       gap: 15px;
@@ -118,6 +122,7 @@
     .btn.correct-btn  { background-color: #c1ff72; }
     .btn.wrong-btn    { background-color: #ff4444; color: white; }
 
+    /* ── FEEDBACK ── */
     #feedback {
       margin-top: 25px;
       font-size: 20px;
@@ -128,6 +133,7 @@
     .correct { color: #c1ff72; }
     .wrong    { color: #ff0503; }
 
+    /* ── VERIFICATION BOX ── */
     .verification {
       margin-top: 20px;
       background: rgba(255, 255, 255, 0.1);
@@ -145,24 +151,60 @@
       color: #c1ff72;
     }
 
-    .return-notice {
+    .return-prompt {
       display: none;
       margin-top: 16px;
-      background: rgba(193, 255, 114, 0.1);
-      border: 2px solid rgba(193, 255, 114, 0.35);
-      border-radius: 12px;
-      padding: 12px 18px;
       max-width: 450px;
       width: 100%;
-      font-size: 13px;
-      font-weight: 800;
-      color: #c1ff72;
+      box-sizing: border-box;
+      animation: popUp .4s cubic-bezier(.2,.8,.3,1) both;
+    }
+    @keyframes popUp {
+      from { transform: scale(.88); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .return-prompt.visible { display: block; }
+
+    .return-prompt-inner {
+      background: #1a2a6c;
+      border: 4px solid #4a4a4a;
+      border-radius: 24px;
+      box-shadow: 8px 8px 0px #c1ff72;
+      padding: 22px 24px;
       text-align: center;
-      letter-spacing: .5px;
+    }
+    .return-prompt-inner p {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.6;
+      margin: 0 0 18px 0;
+    }
+    .return-prompt-inner strong { color: #c1ff72; }
+
+    .back-btn {
+      display: block;
+      width: 100%;
+      background-color: #c1ff72;
+      color: #1a2a6c;
+      border: none;
+      padding: 15px 30px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0px 4px 0px #4a4a4a;
+      letter-spacing: 1px;
+      text-decoration: none;
       box-sizing: border-box;
     }
-    .return-notice.visible { display: block; }
+    .back-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0px 2px 0px #4a4a4a;
+    }
 
+    /* ── ERROR / LOADING STATES ── */
     .state-card {
       background-color: #1a2a6c;
       padding: 30px;
@@ -196,19 +238,19 @@
     <p>Fetching your question from the game controller.</p>
   </div>
 
+  <!-- ERROR STATE -->
   <div class="state-card" id="error-card">
     <h2>⚠️ No Challenge Active</h2>
     <p>Please launch this quiz from the FLOURISH ROLL DICE controller by landing on a Challenge spot (Spot 10 or 15) and tapping <strong>Open Challenge!</strong></p>
   </div>
 
-
+  <!-- CONTEXT BANNER -->
   <div class="context-banner" id="context-banner" style="display:none;">
     <div class="context-pill" id="pill-spot">SPOT 10</div>
     <div class="context-pill" id="pill-player">PLAYER 1</div>
     <div class="context-pill pink" id="pill-bonus">+1 BONUS MOVE</div>
   </div>
 
-  
   <div class="quiz-card" id="quiz-card" style="display:none;">
     <h1>TRUE OR FALSE</h1>
 
@@ -232,9 +274,12 @@
     <h2>Fact Check &amp; Sources</h2>
     <div id="fact-source">Answer the question to unlock the nutritional science behind it!</div>
   </div>
-  
-  <div class="return-notice" id="return-notice">
-    ← Switch back to the controller tab — your result has been sent automatically.
+
+  <div class="return-prompt" id="return-prompt">
+    <div class="return-prompt-inner">
+      <p>Your result has been sent to the game!<br><strong>Tap below to go back to the dice.</strong></p>
+      <a class="back-btn" id="back-btn" href="index.html">🎲 BACK TO DICE</a>
+    </div>
   </div>
 
 <script>
@@ -416,13 +461,11 @@ const QUIZ_DATA = [
   },
 ];
 
-
 let quizContext   = null;
 let currentQ      = null;
 let answered      = false;
 let timerHandle   = null;
 const TIMER_SECS  = 30;
-
 
 function startTimer() {
   const bar = document.getElementById('timer-bar');
@@ -437,7 +480,7 @@ function startTimer() {
     if (pct < 30) bar.classList.add('warning');
     if (remaining <= 0) {
       clearInterval(timerHandle);
-      if (!answered) handleUserChoice(null);
+      if (!answered) handleUserChoice(null); // time's up → wrong
     }
   }, 150);
 }
@@ -446,6 +489,9 @@ function stopTimer() {
   if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
 }
 
+// ══════════════════════════════════════════════════
+//  ANSWER HANDLER
+// ══════════════════════════════════════════════════
 function handleUserChoice(userChoice) {
   if (answered) return;
   answered = true;
@@ -454,17 +500,18 @@ function handleUserChoice(userChoice) {
   const isCorrect = (userChoice === currentQ.a);
   const bonus     = isCorrect ? quizContext.bonus : 0;
 
+  // Disable buttons + colour feedback
   document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
   const feedback = document.getElementById('feedback');
 
   if (userChoice === null) {
-   
+    // Time expired
     feedback.innerHTML = "⏱ TIME'S UP!";
     feedback.className = 'wrong';
   } else if (isCorrect) {
     feedback.innerHTML = `✓ CORRECT! +${bonus} move${bonus > 1 ? 's' : ''} earned!`;
     feedback.className = 'correct';
-    
+    // Highlight the correct button
     document.getElementById(userChoice ? 'btn-true' : 'btn-false').classList.add('correct-btn');
   } else {
     feedback.innerHTML = '✗ WRONG!';
@@ -481,9 +528,9 @@ function handleUserChoice(userChoice) {
   document.getElementById('fact-source').innerHTML =
     `<strong>The Science:</strong> ${currentQ.fact}<br><br><small>${currentQ.source}</small>`;
 
-  // Show return notice after short delay
+  // Show return prompt after short delay
   setTimeout(() => {
-    document.getElementById('return-notice').classList.add('visible');
+    document.getElementById('return-prompt').classList.add('visible');
   }, 800);
 
   // Write result to localStorage → controller picks it up instantly
@@ -498,6 +545,9 @@ function handleUserChoice(userChoice) {
   try { localStorage.setItem(KEYS.QUIZ_RESULT, JSON.stringify(result)); } catch(e) {}
 }
 
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
   const loading    = document.getElementById('loading-card');
   const errorCard  = document.getElementById('error-card');
@@ -508,7 +558,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     loading.classList.remove('visible');
 
-
+    // Read context from localStorage
     let ctx = null;
     try { ctx = JSON.parse(localStorage.getItem(KEYS.QUIZ_CONTEXT) || 'null'); } catch(_) {}
 
@@ -528,7 +578,14 @@ window.addEventListener('DOMContentLoaded', () => {
     quizCard.style.display = 'block';
     verifyBox.style.display = 'block';
 
-  
+    // Set back button href — use referrer if available, else default to index.html
+    const backBtn = document.getElementById('back-btn');
+    if (document.referrer && document.referrer !== window.location.href) {
+      backBtn.href = document.referrer;
+    } else {
+      backBtn.href = 'index.html';
+    }
+
     const seed = (ctx.spot * 100 + ctx.player + Math.floor(Date.now() / 60000)) % QUIZ_DATA.length;
     currentQ   = QUIZ_DATA[seed];
 
