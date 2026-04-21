@@ -1,645 +1,631 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Flourish Quiz - True or False</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;800&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Flourish Quiz - True or False</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
 
-```
-html {
-  height: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
+    html {
+      height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
 
-body {
-  background-color: #05472A;
-  font-family: 'Montserrat', sans-serif;
-  min-height: 100%;
-  margin: 0;
-  padding: 0;
-  color: white;
-  overflow-x: hidden;
-}
+    body {
+      background-color: #05472A;
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+      color: white;
+      overflow-x: hidden;
+    }
 
-/* Centered scrollable wrapper */
-.page-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 28px 20px 50px;
-}
+    /* Centered scrollable wrapper */
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 28px 20px 50px;
+    }
 
-/* ── CONTEXT BANNER (spot + player + bonus) ── */
-.context-banner {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-.context-pill {
-  background: rgba(193, 255, 114, 0.15);
-  border: 2px solid #c1ff72;
-  color: #c1ff72;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 5px 14px;
-  border-radius: 99px;
-}
-.context-pill.pink {
-  background: rgba(255, 102, 196, 0.15);
-  border-color: #FF66C4;
-  color: #FF66C4;
-}
+    /* ── CONTEXT BANNER (spot + player + bonus) ── */
+    .context-banner {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .context-pill {
+      background: rgba(193, 255, 114, 0.15);
+      border: 2px solid #c1ff72;
+      color: #c1ff72;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 99px;
+    }
+    .context-pill.pink {
+      background: rgba(255, 102, 196, 0.15);
+      border-color: #FF66C4;
+      color: #FF66C4;
+    }
 
-/* ── QUIZ CARD ── */
-.quiz-card {
-  background-color: #1a2a6c;
-  padding: 30px;
-  border-radius: 24px;
-  box-shadow: 10px 10px 0px #c1ff72;
-  text-align: center;
-  width: 100%;
-  border: 4px solid #4a4a4a;
-}
+    /* ── QUIZ CARD ── */
+    .quiz-card {
+      background-color: #1a2a6c;
+      padding: 30px;
+      border-radius: 24px;
+      box-shadow: 10px 10px 0px #c1ff72;
+      text-align: center;
+      width: 100%;
+      border: 4px solid #4a4a4a;
+    }
 
-h1 {
-  color: #c1ff72;
-  font-size: 28px;
-  margin: 0 0 20px 0;
-  letter-spacing: 2px;
-}
+    h1 {
+      color: #c1ff72;
+      font-size: 28px;
+      margin: 0 0 20px 0;
+      letter-spacing: 2px;
+    }
 
-/* ── TIMER BAR ── */
-.timer-wrap {
-  background: rgba(255,255,255,0.1);
-  border-radius: 99px;
-  height: 6px;
-  margin-bottom: 18px;
-  overflow: hidden;
-}
-.timer-bar {
-  height: 100%;
-  background: #c1ff72;
-  border-radius: 99px;
-  transition: width 0.15s linear, background 0.3s;
-}
-.timer-bar.warning { background: #FF66C4; }
+    /* ── TIMER BAR ── */
+    .timer-wrap {
+      background: rgba(255,255,255,0.1);
+      border-radius: 99px;
+      height: 6px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .timer-bar {
+      height: 100%;
+      background: #c1ff72;
+      border-radius: 99px;
+      transition: width 0.15s linear, background 0.3s;
+    }
+    .timer-bar.warning { background: #FF66C4; }
 
-/* ── QUESTION ── */
-.question-container {
-  min-height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 25px;
-}
-.question {
-  font-size: 20px;
-  line-height: 1.4;
-  font-weight: 400;
-}
+    /* ── QUESTION ── */
+    .question-container {
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+    .question {
+      font-size: 20px;
+      line-height: 1.4;
+      font-weight: 400;
+    }
 
-/* ── BUTTONS ── */
-.options {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-}
-.btn {
-  background-color: #c1ff72;
-  color: #1a2a6c;
-  border: none;
-  padding: 15px 30px;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 800;
-  font-size: 18px;
-  border-radius: 12px;
-  cursor: pointer;
-  box-shadow: 0px 4px 0px #4a4a4a;
-  flex: 1;
-  transition: background .15s;
-}
-.btn:active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow: 0px 2px 0px #4a4a4a;
-}
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn.correct-btn  { background-color: #c1ff72; }
-.btn.wrong-btn    { background-color: #ff4444; color: white; }
+    /* ── BUTTONS ── */
+    .options {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+    .btn {
+      background-color: #c1ff72;
+      color: #1a2a6c;
+      border: none;
+      padding: 15px 30px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0px 4px 0px #4a4a4a;
+      flex: 1;
+      transition: background .15s;
+    }
+    .btn:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0px 2px 0px #4a4a4a;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn.correct-btn  { background-color: #c1ff72; }
+    .btn.wrong-btn    { background-color: #ff4444; color: white; }
 
-/* ── FEEDBACK ── */
-#feedback {
-  margin-top: 25px;
-  font-size: 20px;
-  font-weight: 800;
-  text-transform: uppercase;
-  min-height: 30px;
-}
-.correct { color: #c1ff72; }
-.wrong    { color: #ff0503; }
+    /* ── FEEDBACK ── */
+    #feedback {
+      margin-top: 25px;
+      font-size: 20px;
+      font-weight: 800;
+      text-transform: uppercase;
+      min-height: 30px;
+    }
+    .correct { color: #c1ff72; }
+    .wrong    { color: #ff0503; }
 
-/* ── VERIFICATION BOX ── */
-.verification {
-  margin-top: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 12px;
-  width: 100%;
-  font-size: 13px;
-  border-left: 5px solid #c1ff72;
-  box-sizing: border-box;
-}
-.verification h2 {
-  font-size: 16px;
-  margin: 0 0 10px 0;
-  color: #c1ff72;
-}
+    /* ── VERIFICATION BOX ── */
+    .verification {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 12px;
+      width: 100%;
+      font-size: 13px;
+      border-left: 5px solid #c1ff72;
+      box-sizing: border-box;
+    }
+    .verification h2 {
+      font-size: 16px;
+      margin: 0 0 10px 0;
+      color: #c1ff72;
+    }
 
-/* ── RETURN PROMPT ── */
-.return-prompt {
-  display: none;
-  margin-top: 16px;
-  width: 100%;
-  box-sizing: border-box;
-  animation: popUp .4s cubic-bezier(.2,.8,.3,1) both;
-}
-@keyframes popUp {
-  from { transform: scale(.88); opacity: 0; }
-  to   { transform: scale(1);   opacity: 1; }
-}
-.return-prompt.visible { display: block; }
+    /* ── RETURN PROMPT ── */
+    .return-prompt {
+      display: none;
+      margin-top: 16px;
+      width: 100%;
+      box-sizing: border-box;
+      animation: popUp .4s cubic-bezier(.2,.8,.3,1) both;
+    }
+    @keyframes popUp {
+      from { transform: scale(.88); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .return-prompt.visible { display: block; }
 
-.return-prompt-inner {
-  background: #1a2a6c;
-  border: 4px solid #4a4a4a;
-  border-radius: 24px;
-  box-shadow: 8px 8px 0px #c1ff72;
-  padding: 22px 24px;
-  text-align: center;
-}
-.return-prompt-inner p {
-  font-size: 14px;
-  font-weight: 400;
-  color: rgba(255,255,255,0.75);
-  line-height: 1.6;
-  margin: 0 0 18px 0;
-}
-.return-prompt-inner strong { color: #c1ff72; }
+    .return-prompt-inner {
+      background: #1a2a6c;
+      border: 4px solid #4a4a4a;
+      border-radius: 24px;
+      box-shadow: 8px 8px 0px #c1ff72;
+      padding: 22px 24px;
+      text-align: center;
+    }
+    .return-prompt-inner p {
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.6;
+      margin: 0 0 18px 0;
+    }
+    .return-prompt-inner strong { color: #c1ff72; }
 
-.back-btn {
-  display: block;
-  width: 100%;
-  background-color: #c1ff72;
-  color: #1a2a6c;
-  border: none;
-  padding: 15px 30px;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 800;
-  font-size: 18px;
-  border-radius: 12px;
-  cursor: pointer;
-  box-shadow: 0px 4px 0px #4a4a4a;
-  letter-spacing: 1px;
-  text-decoration: none;
-  box-sizing: border-box;
-}
-.back-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0px 2px 0px #4a4a4a;
-}
+    .back-btn {
+      display: block;
+      width: 100%;
+      background-color: #c1ff72;
+      color: #1a2a6c;
+      border: none;
+      padding: 15px 30px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0px 4px 0px #4a4a4a;
+      letter-spacing: 1px;
+      text-decoration: none;
+      box-sizing: border-box;
+    }
+    .back-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0px 2px 0px #4a4a4a;
+    }
 
-/* ── ERROR / LOADING STATES ── */
-.state-card {
-  background-color: #1a2a6c;
-  padding: 30px;
-  border-radius: 24px;
-  box-shadow: 10px 10px 0px #c1ff72;
-  text-align: center;
-  width: 100%;
-  border: 4px solid #4a4a4a;
-  display: none;
-}
-.state-card.visible { display: block; }
-.state-card h2 { color: #c1ff72; font-size: 22px; margin-bottom: 12px; }
-.state-card p  { font-size: 14px; font-weight: 400; line-height: 1.6; opacity: .8; }
-.loading-spinner {
-  width: 44px; height: 44px;
-  border: 4px solid rgba(193,255,114,.2);
-  border-top-color: #c1ff72;
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-  margin: 0 auto 16px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-```
-
-  </style>
+    /* ── ERROR / LOADING STATES ── */
+    .state-card {
+      background-color: #1a2a6c;
+      padding: 30px;
+      border-radius: 24px;
+      box-shadow: 10px 10px 0px #c1ff72;
+      text-align: center;
+      width: 100%;
+      border: 4px solid #4a4a4a;
+      display: none;
+    }
+    .state-card.visible { display: block; }
+    .state-card h2 { color: #c1ff72; font-size: 22px; margin-bottom: 12px; }
+    .state-card p  { font-size: 14px; font-weight: 400; line-height: 1.6; opacity: .8; }
+    .loading-spinner {
+      width: 44px; height: 44px;
+      border: 4px solid rgba(193,255,114,.2);
+      border-top-color: #c1ff72;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
 <div class="page-wrapper">
 
-  <!-- LOADING STATE -->
+  <!-- LOADING STATE -->
+  <div class="state-card visible" id="loading-card">
+    <div class="loading-spinner"></div>
+    <h2>Loading Challenge…</h2>
+    <p>Fetching your question from the game controller.</p>
+  </div>
 
-  <div class="state-card visible" id="loading-card">
-    <div class="loading-spinner"></div>
-    <h2>Loading Challenge…</h2>
-    <p>Fetching your question from the game controller.</p>
-  </div>
+  <!-- ERROR STATE -->
+  <div class="state-card" id="error-card">
+    <h2>⚠️ No Challenge Active</h2>
+    <p>Please launch this quiz from the FLOURISH ROLL DICE controller by landing on a Challenge spot (Spot 10 or 15) and tapping <strong>Open Challenge!</strong></p>
+  </div>
 
-  <!-- ERROR STATE -->
+  <!-- CONTEXT BANNER -->
+  <div class="context-banner" id="context-banner" style="display:none;">
+    <div class="context-pill" id="pill-spot">SPOT 10</div>
+    <div class="context-pill" id="pill-player">PLAYER 1</div>
+    <div class="context-pill pink" id="pill-bonus">+1 BONUS MOVE</div>
+  </div>
 
-  <div class="state-card" id="error-card">
-    <h2>⚠️ No Challenge Active</h2>
-    <p>Please launch this quiz from the FLOURISH ROLL DICE controller by landing on a Challenge spot (Spot 10 or 15) and tapping <strong>Open Challenge!</strong></p>
-  </div>
+  <!-- QUIZ CARD -->
+  <div class="quiz-card" id="quiz-card" style="display:none;">
+    <h1>TRUE OR FALSE</h1>
 
-  <!-- CONTEXT BANNER -->
+    <div class="timer-wrap">
+      <div class="timer-bar" id="timer-bar"></div>
+    </div>
 
-  <div class="context-banner" id="context-banner" style="display:none;">
-    <div class="context-pill" id="pill-spot">SPOT 10</div>
-    <div class="context-pill" id="pill-player">PLAYER 1</div>
-    <div class="context-pill pink" id="pill-bonus">+1 BONUS MOVE</div>
-  </div>
+    <div class="question-container">
+      <div id="question-text" class="question">Loading…</div>
+    </div>
 
-  <!-- QUIZ CARD -->
+    <div class="options">
+      <button class="btn choice-btn" id="btn-true"  onclick="handleUserChoice(true)">TRUE</button>
+      <button class="btn choice-btn" id="btn-false" onclick="handleUserChoice(false)">FALSE</button>
+    </div>
 
-  <div class="quiz-card" id="quiz-card" style="display:none;">
-    <h1>TRUE OR FALSE</h1>
+    <div id="feedback"></div>
+  </div>
 
-```
-<div class="timer-wrap">
-  <div class="timer-bar" id="timer-bar"></div>
-</div>
+  <!-- VERIFICATION -->
+  <div class="verification" id="verification-box" style="display:none;">
+    <h2>Fact Check &amp; Sources</h2>
+    <div id="fact-source">Answer the question to unlock the nutritional science behind it!</div>
+  </div>
 
-<div class="question-container">
-  <div id="question-text" class="question">Loading…</div>
-</div>
-
-<div class="options">
-  <button class="btn choice-btn" id="btn-true"  onclick="handleUserChoice(true)">TRUE</button>
-  <button class="btn choice-btn" id="btn-false" onclick="handleUserChoice(false)">FALSE</button>
-</div>
-
-<div id="feedback"></div>
-```
-
-  </div>
-
-  <!-- VERIFICATION -->
-
-  <div class="verification" id="verification-box" style="display:none;">
-    <h2>Fact Check &amp; Sources</h2>
-    <div id="fact-source">Answer the question to unlock the nutritional science behind it!</div>
-  </div>
-
-  <!-- RETURN PROMPT -->
-
-  <div class="return-prompt" id="return-prompt">
-    <div class="return-prompt-inner">
-      <p>Your result has been sent to the game!<br><strong>Tap below to go back to the dice.</strong></p>
-      <a class="back-btn" id="back-btn" href="index.html">🎲 BACK TO DICE</a>
-    </div>
-  </div>
+  <!-- RETURN PROMPT -->
+  <div class="return-prompt" id="return-prompt">
+    <div class="return-prompt-inner">
+      <p>Your result has been sent to the game!<br><strong>Tap below to go back to the dice.</strong></p>
+      <a class="back-btn" id="back-btn" href="index.html">🎲 BACK TO DICE</a>
+    </div>
+  </div>
 
 </div><!-- /page-wrapper -->
 
 <script>
 // ══════════════════════════════════════════════════
-//  STORAGE KEYS (must match controller)
+//  STORAGE KEYS (must match controller)
 // ══════════════════════════════════════════════════
 const KEYS = {
-  QUIZ_CONTEXT: 'frd_quiz_context',
-  QUIZ_RESULT:  'frd_quiz_result',
+  QUIZ_CONTEXT: 'frd_quiz_context',
+  QUIZ_RESULT:  'frd_quiz_result',
 };
 
 // ══════════════════════════════════════════════════
-//  FULL VERIFIED QUESTION DATABASE  (28 T/F items)
-//  Sources: Mayo Clinic, AHA, Harvard Health,
-//           NIH, Johns Hopkins, WebMD, USDA, CDC
+//  FULL VERIFIED QUESTION DATABASE  (28 T/F items)
+//  Sources: Mayo Clinic, AHA, Harvard Health,
+//           NIH, Johns Hopkins, WebMD, USDA, CDC
 // ══════════════════════════════════════════════════
 const QUIZ_DATA = [
-  {
-    q:      "Fresh vegetables are always healthier than frozen vegetables.",
-    a:      false,
-    fact:   "Frozen veggies are flash-frozen at peak ripeness, locking in vitamins and minerals just as well as fresh — sometimes better.",
-    source: "NIH: Why frozen fruit and veggies may be better for you than fresh"
-  },
-  {
-    q:      "Drinking water can temporarily boost your metabolism.",
-    a:      true,
-    fact:   "Water intake raises resting metabolic rate by 24–30% for up to 90 minutes via thermogenesis.",
-    source: "Healthline / Journal of Clinical Endocrinology & Metabolism"
-  },
-  {
-    q:      "Brown sugar is significantly healthier than white sugar.",
-    a:      false,
-    fact:   "Brown sugar is white sugar with molasses added back in. The nutritional difference is negligible.",
-    source: "American Heart Association (AHA)"
-  },
-  {
-    q:      "Table salt and sea salt contain the same amount of sodium by weight.",
-    a:      true,
-    fact:   "Both are about 40% sodium by weight. Sea salt's larger crystals mean you may use less by volume.",
-    source: "American Heart Association (AHA)"
-  },
-  {
-    q:      "Eggs significantly increase heart disease risk due to dietary cholesterol.",
-    a:      false,
-    fact:   "For most people, dietary cholesterol in eggs has little effect on blood cholesterol. Saturated fat is a bigger concern.",
-    source: "Harvard Health Publishing"
-  },
-  {
-    q:      "Eating carrots will dramatically improve your night vision.",
-    a:      false,
-    fact:   "Vitamin A from carrots supports eye health, but extra intake won't give you enhanced night vision beyond normal.",
-    source: "Scientific American"
-  },
-  {
-    q:      "Celery has 'negative calories' — you burn more digesting it than it contains.",
-    a:      false,
-    fact:   "Celery is very low calorie (~6 cal/stalk), but the energy to digest it is still less than the calories it provides.",
-    source: "BBC Good Food / Academy of Nutrition and Dietetics"
-  },
-  {
-    q:      "Multigrain bread is always the same as whole wheat bread.",
-    a:      false,
-    fact:   "'Multigrain' just means multiple grain types; those grains may still be refined. Look for '100% whole grain' on the label.",
-    source: "WebMD"
-  },
-  {
-    q:      "The FDA strictly regulates the word 'Natural' to certify a food is healthy.",
-    a:      false,
-    fact:   "'Natural' usually only means no artificial colors were added — it does NOT guarantee low calories, low sodium, or good nutrition.",
-    source: "FDA — Use of the Term Natural in Food Labeling"
-  },
-  {
-    q:      "The natural sugar in whole fruit behaves differently in the body than added table sugar.",
-    a:      true,
-    fact:   "Whole fruit contains fiber, which slows sugar absorption and prevents the rapid blood sugar spikes caused by added sugar.",
-    source: "Healthline / Harvard Health Publishing"
-  },
-  {
-    q:      "Detox teas and juice cleanses are necessary to remove toxins from the body.",
-    a:      false,
-    fact:   "Your liver and kidneys continuously filter waste. No commercial product improves upon your body's built-in detox system.",
-    source: "NIH National Center for Complementary and Integrative Health"
-  },
-  {
-    q:      "Gluten-free diets are healthier for everyone, not just people with Celiac disease.",
-    a:      false,
-    fact:   "Without Celiac disease or gluten sensitivity, gluten-free products often contain more sugar, fat, and fewer nutrients.",
-    source: "Johns Hopkins Medicine"
-  },
-  {
-    q:      "Fruit juice is just as healthy as eating whole fruit.",
-    a:      false,
-    fact:   "Juicing removes most fiber, dramatically raising the glycemic impact and removing key nutrients compared to whole fruit.",
-    source: "Nutrition.org / Harvard T.H. Chan School of Public Health"
-  },
-  {
-    q:      "Dark chocolate (70%+ cocoa) contains antioxidants that can benefit heart health.",
-    a:      true,
-    fact:   "Flavanols in high-cocoa dark chocolate can help relax blood vessels, lower blood pressure, and improve blood flow.",
-    source: "Johns Hopkins Medicine"
-  },
-  {
-    q:      "Adults need at least 7–9 hours of sleep per night for optimal health.",
-    a:      true,
-    fact:   "Chronic sleep deprivation is linked to obesity, diabetes, heart disease, and weakened immunity.",
-    source: "Mayo Clinic"
-  },
-  {
-    q:      "The American Heart Association recommends at least 150 minutes of moderate aerobic exercise per week.",
-    a:      true,
-    fact:   "That equals about 30 minutes on 5 days per week. Even short bouts of activity count toward the total.",
-    source: "American Heart Association (AHA)"
-  },
-  {
-    q:      "Eating fat always makes you gain body fat.",
-    a:      false,
-    fact:   "Unsaturated fats from nuts, olive oil, and avocado are essential for brain function and may support a healthy weight.",
-    source: "Harvard Health Publishing"
-  },
-  {
-    q:      "High sodium intake is a major risk factor for high blood pressure.",
-    a:      true,
-    fact:   "The AHA recommends less than 2,300 mg of sodium per day; most Americans consume far more.",
-    source: "American Heart Association (AHA)"
-  },
-  {
-    q:      "Soluble fiber found in oats helps lower LDL ('bad') cholesterol.",
-    a:      true,
-    fact:   "Soluble fiber binds to cholesterol in the digestive system and helps remove it before it enters the bloodstream.",
-    source: "Mayo Clinic"
-  },
-  {
-    q:      "Drinking coffee daily significantly increases the risk of type 2 diabetes.",
-    a:      false,
-    fact:   "Moderate coffee consumption (3–5 cups/day) is actually associated with a reduced risk of type 2 diabetes.",
-    source: "Harvard Health Publishing"
-  },
-  {
-    q:      "Regular physical activity is one of the most effective ways to lower blood pressure.",
-    a:      true,
-    fact:   "Aerobic exercise for 30+ minutes most days can lower systolic blood pressure by 5–8 mmHg.",
-    source: "Mayo Clinic"
-  },
-  {
-    q:      "Vitamin D is essential for the body to absorb calcium properly.",
-    a:      true,
-    fact:   "Without enough Vitamin D, the body can only absorb 10–15% of dietary calcium, risking bone weakness.",
-    source: "Mayo Clinic / NIH Office of Dietary Supplements"
-  },
-  {
-    q:      "The Mediterranean diet has no proven effect on heart disease risk.",
-    a:      false,
-    fact:   "Multiple large studies confirm the Mediterranean diet reduces cardiovascular disease risk by 25–30%.",
-    source: "Harvard Health Publishing / NEJM PREDIMED Study"
-  },
-  {
-    q:      "Physical inactivity doubles your risk of developing cardiovascular disease.",
-    a:      false,
-    fact:   "Inactivity raises heart disease risk by about 35% — still significant, but not double. Even moderate activity helps greatly.",
-    source: "American Heart Association (AHA)"
-  },
-  {
-    q:      "Potassium-rich foods like bananas and sweet potatoes help regulate blood pressure.",
-    a:      true,
-    fact:   "Potassium counteracts the blood pressure-raising effects of sodium by relaxing blood vessel walls.",
-    source: "Mayo Clinic / American Heart Association"
-  },
-  {
-    q:      "Tobacco use is the single largest preventable cause of cancer.",
-    a:      true,
-    fact:   "Smoking causes about 30% of all cancer deaths and is linked to at least 12 types of cancer.",
-    source: "Harvard Health Publishing / CDC"
-  },
-  {
-    q:      "Eating fish twice a week has no meaningful effect on heart health.",
-    a:      false,
-    fact:   "The AHA recommends two servings of fish per week — especially fatty fish like salmon — for their omega-3 benefits.",
-    source: "American Heart Association (AHA)"
-  },
-  {
-    q:      "Chronic stress is a significant risk factor for heart disease.",
-    a:      true,
-    fact:   "Long-term stress elevates cortisol and adrenaline, increasing blood pressure, inflammation, and heart disease risk.",
-    source: "Harvard Health Publishing / American Heart Association"
-  },
+  {
+    q:      "Fresh vegetables are always healthier than frozen vegetables.",
+    a:      false,
+    fact:   "Frozen veggies are flash-frozen at peak ripeness, locking in vitamins and minerals just as well as fresh — sometimes better.",
+    source: "NIH: Why frozen fruit and veggies may be better for you than fresh"
+  },
+  {
+    q:      "Drinking water can temporarily boost your metabolism.",
+    a:      true,
+    fact:   "Water intake raises resting metabolic rate by 24–30% for up to 90 minutes via thermogenesis.",
+    source: "Healthline / Journal of Clinical Endocrinology & Metabolism"
+  },
+  {
+    q:      "Brown sugar is significantly healthier than white sugar.",
+    a:      false,
+    fact:   "Brown sugar is white sugar with molasses added back in. The nutritional difference is negligible.",
+    source: "American Heart Association (AHA)"
+  },
+  {
+    q:      "Table salt and sea salt contain the same amount of sodium by weight.",
+    a:      true,
+    fact:   "Both are about 40% sodium by weight. Sea salt's larger crystals mean you may use less by volume.",
+    source: "American Heart Association (AHA)"
+  },
+  {
+    q:      "Eggs significantly increase heart disease risk due to dietary cholesterol.",
+    a:      false,
+    fact:   "For most people, dietary cholesterol in eggs has little effect on blood cholesterol. Saturated fat is a bigger concern.",
+    source: "Harvard Health Publishing"
+  },
+  {
+    q:      "Eating carrots will dramatically improve your night vision.",
+    a:      false,
+    fact:   "Vitamin A from carrots supports eye health, but extra intake won't give you enhanced night vision beyond normal.",
+    source: "Scientific American"
+  },
+  {
+    q:      "Celery has 'negative calories' — you burn more digesting it than it contains.",
+    a:      false,
+    fact:   "Celery is very low calorie (~6 cal/stalk), but the energy to digest it is still less than the calories it provides.",
+    source: "BBC Good Food / Academy of Nutrition and Dietetics"
+  },
+  {
+    q:      "Multigrain bread is always the same as whole wheat bread.",
+    a:      false,
+    fact:   "'Multigrain' just means multiple grain types; those grains may still be refined. Look for '100% whole grain' on the label.",
+    source: "WebMD"
+  },
+  {
+    q:      "The FDA strictly regulates the word 'Natural' to certify a food is healthy.",
+    a:      false,
+    fact:   "'Natural' usually only means no artificial colors were added — it does NOT guarantee low calories, low sodium, or good nutrition.",
+    source: "FDA — Use of the Term Natural in Food Labeling"
+  },
+  {
+    q:      "The natural sugar in whole fruit behaves differently in the body than added table sugar.",
+    a:      true,
+    fact:   "Whole fruit contains fiber, which slows sugar absorption and prevents the rapid blood sugar spikes caused by added sugar.",
+    source: "Healthline / Harvard Health Publishing"
+  },
+  {
+    q:      "Detox teas and juice cleanses are necessary to remove toxins from the body.",
+    a:      false,
+    fact:   "Your liver and kidneys continuously filter waste. No commercial product improves upon your body's built-in detox system.",
+    source: "NIH National Center for Complementary and Integrative Health"
+  },
+  {
+    q:      "Gluten-free diets are healthier for everyone, not just people with Celiac disease.",
+    a:      false,
+    fact:   "Without Celiac disease or gluten sensitivity, gluten-free products often contain more sugar, fat, and fewer nutrients.",
+    source: "Johns Hopkins Medicine"
+  },
+  {
+    q:      "Fruit juice is just as healthy as eating whole fruit.",
+    a:      false,
+    fact:   "Juicing removes most fiber, dramatically raising the glycemic impact and removing key nutrients compared to whole fruit.",
+    source: "Nutrition.org / Harvard T.H. Chan School of Public Health"
+  },
+  {
+    q:      "Dark chocolate (70%+ cocoa) contains antioxidants that can benefit heart health.",
+    a:      true,
+    fact:   "Flavanols in high-cocoa dark chocolate can help relax blood vessels, lower blood pressure, and improve blood flow.",
+    source: "Johns Hopkins Medicine"
+  },
+  {
+    q:      "Adults need at least 7–9 hours of sleep per night for optimal health.",
+    a:      true,
+    fact:   "Chronic sleep deprivation is linked to obesity, diabetes, heart disease, and weakened immunity.",
+    source: "Mayo Clinic"
+  },
+  {
+    q:      "The American Heart Association recommends at least 150 minutes of moderate aerobic exercise per week.",
+    a:      true,
+    fact:   "That equals about 30 minutes on 5 days per week. Even short bouts of activity count toward the total.",
+    source: "American Heart Association (AHA)"
+  },
+  {
+    q:      "Eating fat always makes you gain body fat.",
+    a:      false,
+    fact:   "Unsaturated fats from nuts, olive oil, and avocado are essential for brain function and may support a healthy weight.",
+    source: "Harvard Health Publishing"
+  },
+  {
+    q:      "High sodium intake is a major risk factor for high blood pressure.",
+    a:      true,
+    fact:   "The AHA recommends less than 2,300 mg of sodium per day; most Americans consume far more.",
+    source: "American Heart Association (AHA)"
+  },
+  {
+    q:      "Soluble fiber found in oats helps lower LDL ('bad') cholesterol.",
+    a:      true,
+    fact:   "Soluble fiber binds to cholesterol in the digestive system and helps remove it before it enters the bloodstream.",
+    source: "Mayo Clinic"
+  },
+  {
+    q:      "Drinking coffee daily significantly increases the risk of type 2 diabetes.",
+    a:      false,
+    fact:   "Moderate coffee consumption (3–5 cups/day) is actually associated with a reduced risk of type 2 diabetes.",
+    source: "Harvard Health Publishing"
+  },
+  {
+    q:      "Regular physical activity is one of the most effective ways to lower blood pressure.",
+    a:      true,
+    fact:   "Aerobic exercise for 30+ minutes most days can lower systolic blood pressure by 5–8 mmHg.",
+    source: "Mayo Clinic"
+  },
+  {
+    q:      "Vitamin D is essential for the body to absorb calcium properly.",
+    a:      true,
+    fact:   "Without enough Vitamin D, the body can only absorb 10–15% of dietary calcium, risking bone weakness.",
+    source: "Mayo Clinic / NIH Office of Dietary Supplements"
+  },
+  {
+    q:      "The Mediterranean diet has no proven effect on heart disease risk.",
+    a:      false,
+    fact:   "Multiple large studies confirm the Mediterranean diet reduces cardiovascular disease risk by 25–30%.",
+    source: "Harvard Health Publishing / NEJM PREDIMED Study"
+  },
+  {
+    q:      "Physical inactivity doubles your risk of developing cardiovascular disease.",
+    a:      false,
+    fact:   "Inactivity raises heart disease risk by about 35% — still significant, but not double. Even moderate activity helps greatly.",
+    source: "American Heart Association (AHA)"
+  },
+  {
+    q:      "Potassium-rich foods like bananas and sweet potatoes help regulate blood pressure.",
+    a:      true,
+    fact:   "Potassium counteracts the blood pressure-raising effects of sodium by relaxing blood vessel walls.",
+    source: "Mayo Clinic / American Heart Association"
+  },
+  {
+    q:      "Tobacco use is the single largest preventable cause of cancer.",
+    a:      true,
+    fact:   "Smoking causes about 30% of all cancer deaths and is linked to at least 12 types of cancer.",
+    source: "Harvard Health Publishing / CDC"
+  },
+  {
+    q:      "Eating fish twice a week has no meaningful effect on heart health.",
+    a:      false,
+    fact:   "The AHA recommends two servings of fish per week — especially fatty fish like salmon — for their omega-3 benefits.",
+    source: "American Heart Association (AHA)"
+  },
+  {
+    q:      "Chronic stress is a significant risk factor for heart disease.",
+    a:      true,
+    fact:   "Long-term stress elevates cortisol and adrenaline, increasing blood pressure, inflammation, and heart disease risk.",
+    source: "Harvard Health Publishing / American Heart Association"
+  },
 ];
 
 // ══════════════════════════════════════════════════
-//  GLOBAL STATE
+//  GLOBAL STATE
 // ══════════════════════════════════════════════════
-let quizContext   = null;
-let currentQ      = null;
-let answered      = false;
-let timerHandle   = null;
-const TIMER_SECS  = 30;
+let quizContext   = null;
+let currentQ      = null;
+let answered      = false;
+let timerHandle   = null;
+const TIMER_SECS  = 30;
 
 // ══════════════════════════════════════════════════
-//  TIMER
+//  TIMER
 // ══════════════════════════════════════════════════
 function startTimer() {
-  const bar = document.getElementById('timer-bar');
-  let remaining = TIMER_SECS;
-  bar.style.width = '100%';
-  bar.classList.remove('warning');
+  const bar = document.getElementById('timer-bar');
+  let remaining = TIMER_SECS;
+  bar.style.width = '100%';
+  bar.classList.remove('warning');
 
-  timerHandle = setInterval(() => {
-    remaining -= 0.15;
-    const pct = Math.max(0, (remaining / TIMER_SECS) * 100);
-    bar.style.width = pct + '%';
-    if (pct < 30) bar.classList.add('warning');
-    if (remaining <= 0) {
-      clearInterval(timerHandle);
-      if (!answered) handleUserChoice(null); // time's up → wrong
-    }
-  }, 150);
+  timerHandle = setInterval(() => {
+    remaining -= 0.15;
+    const pct = Math.max(0, (remaining / TIMER_SECS) * 100);
+    bar.style.width = pct + '%';
+    if (pct < 30) bar.classList.add('warning');
+    if (remaining <= 0) {
+      clearInterval(timerHandle);
+      if (!answered) handleUserChoice(null); // time's up → wrong
+    }
+  }, 150);
 }
 
 function stopTimer() {
-  if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
+  if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
 }
 
 // ══════════════════════════════════════════════════
-//  ANSWER HANDLER
+//  ANSWER HANDLER
 // ══════════════════════════════════════════════════
 function handleUserChoice(userChoice) {
-  if (answered) return;
-  answered = true;
-  stopTimer();
+  if (answered) return;
+  answered = true;
+  stopTimer();
 
-  const isCorrect = (userChoice === currentQ.a);
-  const bonus     = isCorrect ? quizContext.bonus : 0;
+  const isCorrect = (userChoice === currentQ.a);
+  const bonus     = isCorrect ? quizContext.bonus : 0;
 
-  // Disable buttons + colour feedback
-  document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
-  const feedback = document.getElementById('feedback');
+  // Disable buttons + colour feedback
+  document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+  const feedback = document.getElementById('feedback');
 
-  if (userChoice === null) {
-    // Time expired
-    feedback.innerHTML = "⏱ TIME'S UP!";
-    feedback.className = 'wrong';
-  } else if (isCorrect) {
-    feedback.innerHTML = `✓ CORRECT! +${bonus} move${bonus > 1 ? 's' : ''} earned!`;
-    feedback.className = 'correct';
-    // Highlight the correct button
-    document.getElementById(userChoice ? 'btn-true' : 'btn-false').classList.add('correct-btn');
-  } else {
-    feedback.innerHTML = '✗ WRONG!';
-    feedback.className = 'wrong';
-    // Highlight wrong button red
-    const wrongId = userChoice ? 'btn-true' : 'btn-false';
-    document.getElementById(wrongId).classList.add('wrong-btn');
-    // Show which was correct
-    const correctId = currentQ.a ? 'btn-true' : 'btn-false';
-    document.getElementById(correctId).style.outline = '3px solid #c1ff72';
-  }
+  if (userChoice === null) {
+    // Time expired
+    feedback.innerHTML = "⏱ TIME'S UP!";
+    feedback.className = 'wrong';
+  } else if (isCorrect) {
+    feedback.innerHTML = `✓ CORRECT! +${bonus} move${bonus > 1 ? 's' : ''} earned!`;
+    feedback.className = 'correct';
+    // Highlight the correct button
+    document.getElementById(userChoice ? 'btn-true' : 'btn-false').classList.add('correct-btn');
+  } else {
+    feedback.innerHTML = '✗ WRONG!';
+    feedback.className = 'wrong';
+    // Highlight wrong button red
+    const wrongId = userChoice ? 'btn-true' : 'btn-false';
+    document.getElementById(wrongId).classList.add('wrong-btn');
+    // Show which was correct
+    const correctId = currentQ.a ? 'btn-true' : 'btn-false';
+    document.getElementById(correctId).style.outline = '3px solid #c1ff72';
+  }
 
-  // Reveal fact + source
-  document.getElementById('fact-source').innerHTML =
-    `<strong>The Science:</strong> ${currentQ.fact}<br><br><small>${currentQ.source}</small>`;
+  // Reveal fact + source
+  document.getElementById('fact-source').innerHTML =
+    `<strong>The Science:</strong> ${currentQ.fact}<br><br><small>${currentQ.source}</small>`;
 
-  // Show return prompt after short delay
-  setTimeout(() => {
-    document.getElementById('return-prompt').classList.add('visible');
-  }, 800);
+  // Show return prompt after short delay
+  setTimeout(() => {
+    document.getElementById('return-prompt').classList.add('visible');
+  }, 800);
 
-  // Write result to localStorage → controller picks it up instantly
-  const result = {
-    correct:   isCorrect,
-    bonus:     bonus,
-    spot:      quizContext.spot,
-    player:    quizContext.player,
-    applied:   false,
-    timestamp: Date.now(),
-  };
-  try { localStorage.setItem(KEYS.QUIZ_RESULT, JSON.stringify(result)); } catch(e) {}
+  // Write result to localStorage → controller picks it up instantly
+  const result = {
+    correct:   isCorrect,
+    bonus:     bonus,
+    spot:      quizContext.spot,
+    player:    quizContext.player,
+    applied:   false,
+    timestamp: Date.now(),
+  };
+  try { localStorage.setItem(KEYS.QUIZ_RESULT, JSON.stringify(result)); } catch(e) {}
 }
 
 // ══════════════════════════════════════════════════
-//  INIT
+//  INIT
 // ══════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  const loading    = document.getElementById('loading-card');
-  const errorCard  = document.getElementById('error-card');
-  const banner     = document.getElementById('context-banner');
-  const quizCard   = document.getElementById('quiz-card');
-  const verifyBox  = document.getElementById('verification-box');
+  const loading    = document.getElementById('loading-card');
+  const errorCard  = document.getElementById('error-card');
+  const banner     = document.getElementById('context-banner');
+  const quizCard   = document.getElementById('quiz-card');
+  const verifyBox  = document.getElementById('verification-box');
 
-  setTimeout(() => {
-    loading.classList.remove('visible');
+  setTimeout(() => {
+    loading.classList.remove('visible');
 
-    // Read context from localStorage
-    let ctx = null;
-    try { ctx = JSON.parse(localStorage.getItem(KEYS.QUIZ_CONTEXT) || 'null'); } catch(_) {}
+    // Read context from localStorage
+    let ctx = null;
+    try { ctx = JSON.parse(localStorage.getItem(KEYS.QUIZ_CONTEXT) || 'null'); } catch(_) {}
 
-    const MAX_AGE = 5 * 60 * 1000; // 5 minutes
-    if (!ctx || !ctx.spot || !ctx.player || (Date.now() - ctx.timestamp) > MAX_AGE) {
-      errorCard.classList.add('visible');
-      return;
-    }
+    const MAX_AGE = 5 * 60 * 1000; // 5 minutes
+    if (!ctx || !ctx.spot || !ctx.player || (Date.now() - ctx.timestamp) > MAX_AGE) {
+      errorCard.classList.add('visible');
+      return;
+    }
 
-    quizContext = ctx;
+    quizContext = ctx;
 
-    // Fill context banner
-    document.getElementById('pill-spot').textContent   = `SPOT ${ctx.spot}`;
-    document.getElementById('pill-player').textContent = `PLAYER ${ctx.player}`;
-    document.getElementById('pill-bonus').textContent  = `+${ctx.bonus} BONUS MOVE${ctx.bonus > 1 ? 'S' : ''}`;
-    banner.style.display   = 'flex';
-    quizCard.style.display = 'block';
-    verifyBox.style.display = 'block';
+    // Fill context banner
+    document.getElementById('pill-spot').textContent   = `SPOT ${ctx.spot}`;
+    document.getElementById('pill-player').textContent = `PLAYER ${ctx.player}`;
+    document.getElementById('pill-bonus').textContent  = `+${ctx.bonus} BONUS MOVE${ctx.bonus > 1 ? 'S' : ''}`;
+    banner.style.display   = 'flex';
+    quizCard.style.display = 'block';
+    verifyBox.style.display = 'block';
 
-    // Set back button href — use referrer if available, else default to index.html
-    const backBtn = document.getElementById('back-btn');
-    if (document.referrer && document.referrer !== window.location.href) {
-      backBtn.href = document.referrer;
-    } else {
-      backBtn.href = 'index.html';
-    }
+    // Set back button href — use referrer if available, else default to index.html
+    const backBtn = document.getElementById('back-btn');
+    if (document.referrer && document.referrer !== window.location.href) {
+      backBtn.href = document.referrer;
+    } else {
+      backBtn.href = 'index.html';
+    }
 
-    // Pick question (seed by spot + player + minute to vary per round)
-    const seed = (ctx.spot * 100 + ctx.player + Math.floor(Date.now() / 60000)) % QUIZ_DATA.length;
-    currentQ   = QUIZ_DATA[seed];
+    // Pick question (seed by spot + player + minute to vary per round)
+    const seed = (ctx.spot * 100 + ctx.player + Math.floor(Date.now() / 60000)) % QUIZ_DATA.length;
+    currentQ   = QUIZ_DATA[seed];
 
-    document.getElementById('question-text').textContent = currentQ.q;
-    startTimer();
-  }, 600);
+    document.getElementById('question-text').textContent = currentQ.q;
+    startTimer();
+  }, 600);
 });
 </script>
-
 </body>
 </html>
