@@ -227,25 +227,7 @@
     .log-row.oldest { opacity: .18; }
     .log-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--flourish-green); margin-top: 4px; flex-shrink: 0; }
 
-    /* ── HOVERLAY DEBUG ── */
-    .debug-wrap {
-      width: calc(100% - 40px); max-width: 380px;
-      margin-top: 8px; margin-bottom: 4px;
-    }
-    .debug-toggle {
-      width: 100%; background: rgba(0,0,0,.2); border: none;
-      color: rgba(255,255,255,.4); font-size: .6rem; letter-spacing: .15em;
-      text-transform: uppercase; padding: 6px 12px; border-radius: 8px;
-      cursor: pointer; text-align: left;
-      font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
-      display: flex; justify-content: space-between;
-    }
-    .debug-panel {
-      display: none; background: rgba(0,0,0,.3); border-radius: 0 0 8px 8px;
-      padding: 6px 10px; max-height: 80px; overflow-y: auto;
-    }
-    .debug-panel.open { display: block; }
-    .debug-entry { font-size: .6rem; font-family: monospace; padding: 1px 0; }
+
 
     /* ── WIN OVERLAY ── */
     .overlay {
@@ -352,17 +334,7 @@
     <div class="log-row"><div class="log-dot"></div><span>Game ready — good luck!</span></div>
   </div>
 
-  <!-- HOVERLAY DEBUG -->
-  <div class="debug-wrap">
-    <button class="debug-toggle" onclick="toggleDebug()">
-      <span>Hoverlay Trigger Log</span><span id="debug-arrow">▾</span>
-    </button>
-    <div class="debug-panel" id="debug-panel">
-      <div class="debug-entry" style="color:#C1FF72">[init] Controller ready</div>
-    </div>
-  </div>
-
-  <!-- WIN OVERLAY -->
+<!-- WIN OVERLAY -->
   <div class="overlay" id="win-overlay">
     <div class="win-emoji">🏆</div>
     <div class="win-title" id="win-title">Player 1 Wins!</div>
@@ -492,21 +464,7 @@ function setStatus(text, type = '') {
   b.className = `status-badge${type ? ' ' + type : ''}`;
 }
 
-function debugLog(trigger, color = 'rgba(255,255,255,.4)', label = 'info') {
-  const log = document.getElementById('debug-panel');
-  const el = document.createElement('div');
-  el.className = 'debug-entry';
-  const t = new Date().toLocaleTimeString('en-US', { hour12: false });
-  el.innerHTML = `<span style="color:${color}">[${label}]</span> <span style="color:white">${trigger}</span> <span style="color:rgba(255,255,255,.3)">${t}</span>`;
-  log.prepend(el);
-  while (log.children.length > 25) log.removeChild(log.lastChild);
-}
-
-function toggleDebug() {
-  const p = document.getElementById('debug-panel');
-  p.classList.toggle('open');
-  document.getElementById('debug-arrow').textContent = p.classList.contains('open') ? '▴' : '▾';
-}
+function debugLog() {} // removed — no debug panel
 
 function saveState() {
   localStorage.setItem(KEYS.P1,     positions[1]);
@@ -643,6 +601,9 @@ async function processSpecialSpot(player, spot) {
   await processSpecialSpot(player, finalPos);
 }
 
+// ══════════════════════════════════════════════════
+//  QUIZ BRIDGE
+// ══════════════════════════════════════════════════
 function launchQuiz() {
   const p      = currentPlayer;
   const spot   = positions[p];
@@ -719,7 +680,9 @@ async function applyQuizResult(result) {
   updateUI();
 }
 
-
+// ══════════════════════════════════════════════════
+//  PLAYER SWITCH, MANUAL ADJUST, WIN, RESET
+// ══════════════════════════════════════════════════
 function togglePlayer() {
   if (isRolling || waitingForQuiz) return;
   currentPlayer = currentPlayer === 1 ? 2 : 1;
@@ -765,6 +728,9 @@ function confirmReset() {
   updateUI();
 }
 
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
 document.getElementById('dice-scene').addEventListener('click', rollDice);
 updateProgressTrack();
 updateUI();
