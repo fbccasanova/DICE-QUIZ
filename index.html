@@ -390,8 +390,8 @@
 // ══════════════════════════════════════════════════
 const CONFIG = {
   WIN_SPOT:          20,
-  ANIMATION_DELAY: 4000,   // ms — wait for Hoverlay trap/portal animation
-  DICE_ANIM_MS:    1800,   // must match CSS transition 1.8s
+  ANIMATION_DELAY: 4000,
+  DICE_ANIM_MS:    1800,
   QUIZ_PAGE:       'flourish-quiz.html',
 };
 
@@ -415,7 +415,6 @@ const KEYS = {
   QUIZ_RESULT:  'frd_quiz_result',
 };
 
-// Dice face-to-rotation mapping (original logic)
 const faceRotations = {
   1: { x: 0,   y: 0   },
   2: { x: 0,   y: -90 },
@@ -437,7 +436,6 @@ let isRolling      = false;
 let waitingForQuiz = false;
 let currentX = 0, currentY = 0;
 let logEntries = [];
-// Tracks total rolls made across both players this game session
 let totalRolls = parseInt(localStorage.getItem('flourish_total_rolls')) || 0;
 
 // ══════════════════════════════════════════════════
@@ -445,8 +443,6 @@ let totalRolls = parseInt(localStorage.getItem('flourish_total_rolls')) || 0;
 // ══════════════════════════════════════════════════
 const HQ = {
   queue: [], running: false,
-  // MIN_GAP: minimum ms between every trigger so Hoverlay's WebView
-  // doesn't drop rapid-fire location.href changes.
   MIN_GAP: 350,
 
   add(trigger, delayAfter = 0) {
@@ -458,14 +454,11 @@ const HQ = {
     while (this.queue.length) {
       const { trigger, delayAfter } = this.queue.shift();
       this._fire(trigger);
-      // Always wait at least MIN_GAP so Hoverlay processes each event
       await sleep(Math.max(this.MIN_GAP, delayAfter));
     }
     this.running = false;
   },
   _fire(trigger) {
-    // Use iframe-only approach — each iframe is its own navigation context
-    // so rapid triggers don't cancel each other (unlike window.location.href).
     try {
       const f = document.createElement('iframe');
       f.style.cssText = 'display:none;width:0;height:0;border:none;position:absolute;';
@@ -473,9 +466,7 @@ const HQ = {
       document.body.appendChild(f);
       setTimeout(() => { try { f.remove(); } catch(_){} }, 1000);
     } catch(_) {}
-    // postMessage fallback for browser testing outside Hoverlay
     try { window.parent.postMessage({ hoverlay: trigger, type: 'hoverlay-trigger' }, '*'); } catch(_) {}
-    debugLog(trigger, '#C1FF72', 'fired');
   },
 };
 
@@ -500,8 +491,6 @@ function setStatus(text, type = '') {
   b.textContent = text;
   b.className = `status-badge${type ? ' ' + type : ''}`;
 }
-
-function debugLog() {} // removed — no debug panel
 
 function saveState() {
   localStorage.setItem(KEYS.P1,     positions[1]);
@@ -551,16 +540,12 @@ function rollDice() {
   isRolling = true;
   updateUI();
 
-  // ── WEIGHTED ROLL ──
-  // First 2 rolls of the game are capped at 4 so players
-  // ease into the board. After that, full 1–6 range.
   const maxRoll = totalRolls < 2 ? 4 : 6;
   const result  = Math.floor(Math.random() * maxRoll) + 1;
   totalRolls++;
   localStorage.setItem('flourish_total_rolls', totalRolls);
   const p = currentPlayer;
 
-  // Spin the cube (original logic)
   const spinsX = (Math.floor(Math.random() * 4) + 5) * 360;
   const spinsY = (Math.floor(Math.random() * 4) + 5) * 360;
   currentX += spinsX + faceRotations[result].x - (currentX % 360);
@@ -584,7 +569,6 @@ function rollDice() {
     if (newPos >= CONFIG.WIN_SPOT) {
       isRolling = false;
       handleWin(p);
-      updateUI();
       return;
     }
 
@@ -605,47 +589,28 @@ async function processSpecialSpot(player, spot) {
     setStatus(special.label, 'challenge');
     addLog(`P${player} hit a Challenge on Spot ${spot}!`, 'challenge');
     HQ.add(`challenge-spot-${spot}`);
-    // Show the full-screen challenge overlay
-    document.getElementById('challenge-overlay-title').textContent =
-      `Spot ${spot} — Health Challenge!`;
-    document.getElementById('challenge-overlay-sub').innerHTML =
-      `Answer correctly to earn <strong style="color:var(--flourish-green)">+${special.bonus} bonus move${special.bonus > 1 ? 's' : ''}</strong>!`;
+    document.getElementById('challenge-overlay-title').textContent = `Spot ${spot} — Health Challenge!`;
+    document.getElementById('challenge-overlay-sub').innerHTML = `Answer correctly to earn <strong style="color:var(--flourish-green)">+${special.bonus} bonus move${special.bonus > 1 ? 's' : ''}</strong>!`;
     document.getElementById('challenge-overlay').classList.add('active');
-    return; // stays locked until quiz resolves or is cancelled
+    return;
   }
 
-  // ── Step 1: Show the special spot label & trigger Hoverlay animation ──
-  const badgeType = special.type === 'trap' ? 'trap' : special.type === 'portal' ? 'portal' : 'shortcut';
-  setStatus(special.label, badgeType);
+  setStatus(special.label, special.type === 'trap' ? 'trap' : special.type === 'portal' ? 'portal' : 'shortcut');
   addLog(`Spot ${spot}: ${special.label}`, special.type);
   document.getElementById('message-box').textContent = special.label;
 
-  // Fire the special animation trigger — this tells Hoverlay to play
-  // the trap / portal / shortcut AR animation on the CURRENT spot.
   HQ.add(`special-${special.type}-${spot}`);
-
-  // ── Step 2: Wait for Hoverlay animation to finish ──
-  // CONFIG.ANIMATION_DELAY (default 4000ms) must be >= your AR animation length.
   await sleep(CONFIG.ANIMATION_DELAY);
 
-  // ── Step 3: Calculate final position ──
-  const finalPos = special.type === 'portal'
-    ? special.to
-    : Math.max(1, Math.min(CONFIG.WIN_SPOT, spot + special.delta));
+  const finalPos = special.type === 'portal' ? special.to : Math.max(1, Math.min(CONFIG.WIN_SPOT, spot + special.delta));
 
-  // ── Step 4: Update state and send the FINAL spot trigger to Hoverlay ──
   positions[player] = finalPos;
   document.getElementById('position-text').textContent = `Spot: ${finalPos}`;
   addLog(`→ P${player} now at Spot ${finalPos}`, special.type);
-  setStatus(`Now at Spot ${finalPos}`);
-
-  // This is the trigger Hoverlay needs to move the AR marker to the new spot.
   HQ.add(`spot-${finalPos}`);
   updateUI();
 
   if (finalPos >= CONFIG.WIN_SPOT) { handleWin(player); return; }
-
-  // ── Step 5: Check if the NEW spot is also special (e.g. shortcut lands on a challenge) ──
   await processSpecialSpot(player, finalPos);
 }
 
@@ -666,8 +631,7 @@ function launchQuiz() {
   window.open(CONFIG.QUIZ_PAGE, '_blank');
 
   waitingForQuiz = true;
-  document.getElementById('quiz-overlay-sub').textContent =
-    `Player ${p} is answering the Spot ${spot} challenge…`;
+  document.getElementById('quiz-overlay-sub').textContent = `Player ${p} is answering the Spot ${spot} challenge…`;
   document.getElementById('challenge-overlay').classList.remove('active');
   document.getElementById('quiz-overlay').classList.add('active');
   HQ.add(`quiz-open-spot${spot}-p${p}`);
@@ -693,7 +657,6 @@ function cancelQuiz() {
   updateUI();
 }
 
-// Cross-tab storage listener
 window.addEventListener('storage', e => {
   if (e.key === KEYS.QUIZ_RESULT && e.newValue) {
     try {
@@ -715,11 +678,15 @@ async function applyQuizResult(result) {
     addLog(`✓ P${p} correct! +${result.bonus} bonus move`, 'shortcut');
     setStatus(`+${result.bonus} Bonus!`, 'shortcut');
     HQ.add(`quiz-correct-spot${result.spot}`);
+    
     await sleep(700);
 
     const newPos = Math.min(positions[p] + result.bonus, CONFIG.WIN_SPOT);
     positions[p] = newPos;
+    
+    // MOVE THE AR INDICATOR AUTOMATICALLY
     HQ.add(`spot-${newPos}`);
+    
     addLog(`→ P${p} moved to Spot ${newPos}`, 'shortcut');
     updateUI();
 
@@ -736,9 +703,6 @@ async function applyQuizResult(result) {
   updateUI();
 }
 
-// ══════════════════════════════════════════════════
-//  PLAYER SWITCH, MANUAL ADJUST, WIN, RESET
-// ══════════════════════════════════════════════════
 function togglePlayer() {
   if (isRolling || waitingForQuiz) return;
   currentPlayer = currentPlayer === 1 ? 2 : 1;
@@ -777,25 +741,19 @@ function confirmReset() {
   document.getElementById('quiz-overlay').classList.remove('active');
   document.getElementById('challenge-overlay').classList.remove('active');
   document.getElementById('message-box').textContent = "Player 1's Turn";
-  document.getElementById('event-log').innerHTML =
-    '<div class="log-row"><div class="log-dot"></div><span>Game reset — good luck!</span></div>';
+  document.getElementById('event-log').innerHTML = '<div class="log-row"><div class="log-dot"></div><span>Game reset — good luck!</span></div>';
   setStatus('Ready to roll!');
   
-  // ── RELEVANT FIX START ──
   HQ.add('game-reset');
   HQ.add('active-player-1');
-  HQ.add('spot-0'); // Moves current player back to start
+  HQ.add('spot-0');
   HQ.add('active-player-2');
-  HQ.add('spot-0'); // Moves second player back to start
-  HQ.add('active-player-1'); // Reset focus to P1
-  // ── RELEVANT FIX END ──
+  HQ.add('spot-0');
+  HQ.add('active-player-1');
   
   updateUI();
 }
 
-// ══════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════
 document.getElementById('dice-scene').addEventListener('click', rollDice);
 updateProgressTrack();
 updateUI();
@@ -805,4 +763,4 @@ setStatus('Ready to roll!');
 addLog(`Game loaded · Player ${currentPlayer}'s turn`);
 </script>
 </body>
-</html>s
+</html>
