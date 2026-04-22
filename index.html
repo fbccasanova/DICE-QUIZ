@@ -315,10 +315,8 @@
   <img src="https://raw.githubusercontent.com/calebkatz874-bot/images/main/FLOURISH.png"
        alt="Flourish" class="logo-image">
 
-  <!-- PROGRESS TRACK -->
   <div class="progress-track" id="progress-track"></div>
 
-  <!-- PLAYER SCORE CARDS -->
   <div class="players-row">
     <div class="player-card active" id="card-p1">
       <div class="player-card-name">Player 1</div>
@@ -338,7 +336,6 @@
     <div id="message-box">Player 1's Turn</div>
     <div class="status-badge" id="status-badge">Ready to roll!</div>
 
-    <!-- DICE -->
     <div class="scene" id="dice-scene">
       <div id="dice" class="cube">
         <div class="cube__face face-1"><span class="pip"></span></div>
@@ -356,17 +353,13 @@
       <button class="adjust-btn" onclick="manualAdjust(1)">+</button>
     </div>
 
-    <!-- CHALLENGE BUTTON (shown only on spots 10 & 15) -->
-
     <button class="reset-btn" onclick="confirmReset()">Reset Game Board</button>
   </div>
 
-  <!-- EVENT LOG -->
   <div class="event-log" id="event-log">
     <div class="log-row"><div class="log-dot"></div><span>Game ready — good luck!</span></div>
   </div>
 
-  <!-- CHALLENGE OVERLAY -->
   <div class="challenge-overlay" id="challenge-overlay">
     <div class="challenge-overlay-emoji">🧠</div>
     <div class="challenge-overlay-title" id="challenge-overlay-title">Health Challenge!</div>
@@ -377,15 +370,13 @@
     <button class="challenge-skip-btn" onclick="skipChallenge()">Skip challenge</button>
   </div>
 
-<!-- WIN OVERLAY -->
-  <div class="overlay" id="win-overlay">
+<div class="overlay" id="win-overlay">
     <div class="win-emoji">🏆</div>
     <div class="win-title" id="win-title">Player 1 Wins!</div>
     <div class="win-sub" id="win-sub">Reached Spot 20 — Flourish!</div>
     <button class="play-again-btn" onclick="confirmReset()">Play Again</button>
   </div>
 
-  <!-- QUIZ WAITING OVERLAY -->
   <div class="quiz-overlay" id="quiz-overlay">
     <div class="quiz-spinner"></div>
     <div class="quiz-overlay-title">Challenge Active</div>
@@ -789,8 +780,16 @@ function confirmReset() {
   document.getElementById('event-log').innerHTML =
     '<div class="log-row"><div class="log-dot"></div><span>Game reset — good luck!</span></div>';
   setStatus('Ready to roll!');
+  
+  // ── RELEVANT FIX START ──
   HQ.add('game-reset');
   HQ.add('active-player-1');
+  HQ.add('spot-0'); // Moves current player back to start
+  HQ.add('active-player-2');
+  HQ.add('spot-0'); // Moves second player back to start
+  HQ.add('active-player-1'); // Reset focus to P1
+  // ── RELEVANT FIX END ──
+  
   updateUI();
 }
 
@@ -806,4 +805,4 @@ setStatus('Ready to roll!');
 addLog(`Game loaded · Player ${currentPlayer}'s turn`);
 </script>
 </body>
-</html>
+</html>s
