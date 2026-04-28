@@ -11,7 +11,7 @@
       --pip-size: 18px;
       --flourish-green: #C1FF72;
       --flourish-pink: #FF66C4;
-      --flourish-blue: #00A3FF; /* New blue for facts */
+      --flourish-blue: #00A3FF;
     }
 
     body {
@@ -38,8 +38,7 @@
       display: flex; flex-direction: column;
       align-items: center; width: 100%;
     }
-
-    /* ── PLAYER SCORES ROW ── */
+/*player Score*/
     .players-row {
       display: flex; gap: 12px; margin-bottom: 10px;
       width: calc(100% - 40px); max-width: 380px;
@@ -131,7 +130,7 @@
     .face-5 .pip:nth-child(1){ grid-area: a; } .face-5 .pip:nth-child(2){ grid-area: b; } .face-5 .pip:nth-child(3){ grid-area: d; } .face-5 .pip:nth-child(4){ grid-area: f; } .face-5 .pip:nth-child(5){ grid-area: g; }
     .face-6 .pip:nth-child(1){ grid-area: a; } .face-6 .pip:nth-child(2){ grid-area: b; } .face-6 .pip:nth-child(3){ grid-area: c; } .face-6 .pip:nth-child(4){ grid-area: e; } .face-6 .pip:nth-child(5){ grid-area: f; } .face-6 .pip:nth-child(6){ grid-area: g; }
 
-    /* ── MESSAGE BOX ── */
+    /* ── MESSAGE BOX*/
     #message-box {
       font-size: 1.1rem; font-weight: 800;
       margin-bottom: 4px; min-height: 1.6rem;
@@ -430,10 +429,7 @@ const faceRotations = {
   5: { x: -90, y: 0   },
   6: { x: 90,  y: 0   },
 };
-
-// ══════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════
+  //state
 let currentPlayer = parseInt(localStorage.getItem(KEYS.PLAYER)) || 1;
 let positions = {
   1: parseInt(localStorage.getItem(KEYS.P1)) || 0,
@@ -447,13 +443,9 @@ let logEntries = [];
 // Tracks total rolls made across both players this game session
 let totalRolls = parseInt(localStorage.getItem('flourish_total_rolls')) || 0;
 
-// ══════════════════════════════════════════════════
-//  HOVERLAY TRIGGER QUEUE
-// ══════════════════════════════════════════════════
+// trigger
 const HQ = {
   queue: [], running: false,
-  // MIN_GAP: minimum ms between every trigger so Hoverlay's WebView
-  // doesn't drop rapid-fire location.href changes.
   MIN_GAP: 350,
 
   add(trigger, delayAfter = 0) {
@@ -465,14 +457,13 @@ const HQ = {
     while (this.queue.length) {
       const { trigger, delayAfter } = this.queue.shift();
       this._fire(trigger);
-      // Always wait at least MIN_GAP so Hoverlay processes each event
+      
       await sleep(Math.max(this.MIN_GAP, delayAfter));
     }
     this.running = false;
   },
   _fire(trigger) {
-    // Use iframe-only approach — each iframe is its own navigation context
-    // so rapid triggers don't cancel each other (unlike window.location.href).
+    
     try {
       const f = document.createElement('iframe');
       f.style.cssText = 'display:none;width:0;height:0;border:none;position:absolute;';
@@ -480,7 +471,7 @@ const HQ = {
       document.body.appendChild(f);
       setTimeout(() => { try { f.remove(); } catch(_){} }, 1000);
     } catch(_) {}
-    // postMessage fallback for browser testing outside Hoverlay
+   
     try { window.parent.postMessage({ hoverlay: trigger, type: 'hoverlay-trigger' }, '*'); } catch(_) {}
     debugLog(trigger, '#C1FF72', 'fired');
   },
@@ -488,9 +479,7 @@ const HQ = {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ══════════════════════════════════════════════════
-//  UTILITIES
-// ══════════════════════════════════════════════════
+//utilities
 function addLog(msg, type) {
   logEntries.unshift({ msg, type });
   if (logEntries.length > 3) logEntries.pop();
@@ -550,24 +539,19 @@ function updateUI() {
   saveState();
 }
 
-// ══════════════════════════════════════════════════
-//  ROLL
-// ══════════════════════════════════════════════════
+//roll
 function rollDice() {
   if (isRolling || waitingForQuiz || showingFact) return; // Prevent roll
   isRolling = true;
   updateUI();
 
-  // ── WEIGHTED ROLL ──
-  // First 2 rolls of the game are capped at 4 so players
-  // ease into the board. After that, full 1–6 range.
+ //fakey role :)
   const maxRoll = totalRolls < 2 ? 4 : 6;
   const result  = Math.floor(Math.random() * maxRoll) + 1;
   totalRolls++;
   localStorage.setItem('flourish_total_rolls', totalRolls);
   const p = currentPlayer;
 
-  // Spin the cube (original logic)
   const spinsX = (Math.floor(Math.random() * 4) + 5) * 360;
   const spinsY = (Math.floor(Math.random() * 4) + 5) * 360;
   currentX += spinsX + faceRotations[result].x - (currentX % 360);
@@ -601,34 +585,32 @@ function rollDice() {
   }, CONFIG.DICE_ANIM_MS);
 }
 
-// ══════════════════════════════════════════════════
-//  SPECIAL SPOT PROCESSING
-// ══════════════════════════════════════════════════
+
 async function processSpecialSpot(player, spot) {
   const special = SPECIAL_SPOTS[spot];
   if (!special) { setStatus('Ready to roll!'); return; }
 
-  // ── FUN FACT Logic ──
-  if (special.type === 'fact') {
-    showingFact = true; // Set lock
-    updateUI(); // lock buttons
-    setStatus(special.label, 'fact'); // Set UI blue badge
-    addLog(special.label, 'fact'); // log it
-    document.getElementById('message-box').textContent = special.label; // message area
 
-    // Tell Hoverlay to show the specific fact panel sequence
+  if (special.type === 'fact') {
+    showingFact = true; 
+    updateUI(); 
+    setStatus(special.label, 'fact'); 
+    addLog(special.label, 'fact'); 
+    document.getElementById('message-box').textContent = special.label; 
+
+
     HQ.add(`show-fact-${spot}`);
 
-    // Wait 10 seconds (default CONFIG.FACT_DELAY)
+
     await sleep(CONFIG.FACT_DELAY);
 
-    // Tell Hoverlay to hide fact panel sequence
+    
     HQ.add(`hide-fact-${spot}`);
 
-    showingFact = false; // Release lock
+    showingFact = false; 
     setStatus('Ready to roll!');
     document.getElementById('message-box').textContent = `Player ${player}'s Turn`;
-    updateUI(); // Unlock buttons
+    updateUI(); 
     return;
   }
 
@@ -636,47 +618,42 @@ async function processSpecialSpot(player, spot) {
     setStatus(special.label, 'challenge');
     addLog(`P${player} hit a Challenge on Spot ${spot}!`, 'challenge');
     HQ.add(`challenge-spot-${spot}`);
-    // Show the full-screen challenge overlay
+    
     document.getElementById('challenge-overlay-title').textContent =
       `Spot ${spot} — Health Challenge!`;
     document.getElementById('challenge-overlay-sub').innerHTML =
       `Answer correctly to earn <strong style="color:var(--flourish-green)">+${special.bonus} bonus move${special.bonus > 1 ? 's' : ''}</strong>!`;
     document.getElementById('challenge-overlay').classList.add('active');
-    return; // stays locked until quiz resolves or is cancelled
+    return; // 
   }
 
-  // ── Step 1: Show the special spot label & trigger Hoverlay animation ──
   const badgeType = special.type === 'trap' ? 'trap' : special.type === 'portal' ? 'portal' : 'shortcut';
   setStatus(special.label, badgeType);
   addLog(`Spot ${spot}: ${special.label}`, special.type);
   document.getElementById('message-box').textContent = special.label;
 
-  // Fire the special animation trigger — this tells Hoverlay to play
-  // the trap / portal / shortcut AR animation on the CURRENT spot.
+  
   HQ.add(`special-${special.type}-${spot}`);
 
-  // ── Step 2: Wait for Hoverlay animation to finish ──
-  // CONFIG.ANIMATION_DELAY (default 4000ms) must be >= your AR animation length.
   await sleep(CONFIG.ANIMATION_DELAY);
 
-  // ── Step 3: Calculate final position ──
+  
   const finalPos = special.type === 'portal'
     ? special.to
     : Math.max(1, Math.min(CONFIG.WIN_SPOT, spot + special.delta));
 
-  // ── Step 4: Update state and send the FINAL spot trigger to Hoverlay ──
+  
   positions[player] = finalPos;
   document.getElementById('position-text').textContent = `Spot: ${finalPos}`;
   addLog(`→ P${player} now at Spot ${finalPos}`, special.type);
   setStatus(`Now at Spot ${finalPos}`);
 
-  // This is the trigger Hoverlay needs to move the AR marker to the new spot.
+  
   HQ.add(`spot-${finalPos}`);
   updateUI();
 
   if (finalPos >= CONFIG.WIN_SPOT) { handleWin(player); return; }
 
-  // ── Step 5: Check if the NEW spot is also special (e.g. shortcut lands on a challenge) ──
   await processSpecialSpot(player, finalPos);
 }
 
@@ -722,7 +699,6 @@ function cancelQuiz() {
   updateUI();
 }
 
-// Cross-tab storage listener
 window.addEventListener('storage', e => {
   if (e.key === KEYS.QUIZ_RESULT && e.newValue) {
     try {
@@ -765,9 +741,7 @@ async function applyQuizResult(result) {
   updateUI();
 }
 
-// ══════════════════════════════════════════════════
-//  PLAYER SWITCH, MANUAL ADJUST, WIN, RESET
-// ══════════════════════════════════════════════════
+
 function togglePlayer() {
   if (isRolling || waitingForQuiz || showingFact) return; // Prevent switch
   currentPlayer = currentPlayer === 1 ? 2 : 1;
@@ -779,7 +753,7 @@ function togglePlayer() {
 }
 
 function manualAdjust(amt) {
-  if (isRolling || waitingForQuiz || showingFact) return; // Prevent adjustment
+  if (isRolling || waitingForQuiz || showingFact) return;
   positions[currentPlayer] = Math.max(0, Math.min(CONFIG.WIN_SPOT, positions[currentPlayer] + amt));
   updateUI();
   HQ.add(`spot-${positions[currentPlayer]}`);
@@ -797,7 +771,7 @@ function handleWin(player) {
 function confirmReset() {
   if (!confirm('Reset BOTH players?')) return;
   positions[1] = 0; positions[2] = 0;
-  currentPlayer = 1; isRolling = false; waitingForQuiz = false; showingFact = false; // Reset fact lock
+  currentPlayer = 1; isRolling = false; waitingForQuiz = false; showingFact = false;
   totalRolls = 0;
   logEntries = [];
   [KEYS.P1, KEYS.P2, KEYS.PLAYER, KEYS.ROLLS, KEYS.QUIZ_CONTEXT, KEYS.QUIZ_RESULT]
@@ -814,9 +788,7 @@ function confirmReset() {
   updateUI();
 }
 
-// ══════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════
+
 document.getElementById('dice-scene').addEventListener('click', rollDice);
 updateProgressTrack();
 updateUI();
