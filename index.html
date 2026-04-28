@@ -38,7 +38,7 @@
       display: flex; flex-direction: column;
       align-items: center; width: 100%;
     }
-/*player Score*/
+
     .players-row {
       display: flex; gap: 12px; margin-bottom: 10px;
       width: calc(100% - 40px); max-width: 380px;
@@ -64,7 +64,6 @@
     .player-card.active .player-card-spot { color: var(--flourish-green); }
     .player-card-label { font-size: .55rem; opacity: .5; letter-spacing: .08em; text-transform: uppercase; }
 
-    /* ── SWITCH BUTTON ── */
     .switch-player-btn {
       background: var(--flourish-green);
       color: #05472A;
@@ -83,7 +82,6 @@
     .switch-player-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #89b351; }
     .switch-player-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 
-    /* ── DICE ── */
     .scene {
       width: var(--dice-size); height: var(--dice-size);
       perspective: 600px; margin: 15px; cursor: pointer;
@@ -130,7 +128,6 @@
     .face-5 .pip:nth-child(1){ grid-area: a; } .face-5 .pip:nth-child(2){ grid-area: b; } .face-5 .pip:nth-child(3){ grid-area: d; } .face-5 .pip:nth-child(4){ grid-area: f; } .face-5 .pip:nth-child(5){ grid-area: g; }
     .face-6 .pip:nth-child(1){ grid-area: a; } .face-6 .pip:nth-child(2){ grid-area: b; } .face-6 .pip:nth-child(3){ grid-area: c; } .face-6 .pip:nth-child(4){ grid-area: e; } .face-6 .pip:nth-child(5){ grid-area: f; } .face-6 .pip:nth-child(6){ grid-area: g; }
 
-    /* ── MESSAGE BOX*/
     #message-box {
       font-size: 1.1rem; font-weight: 800;
       margin-bottom: 4px; min-height: 1.6rem;
@@ -138,7 +135,6 @@
       transition: color .2s;
     }
 
-    /* ── STATUS BADGE ── */
     .status-badge {
       font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
       padding: 4px 14px; border-radius: 99px; margin-bottom: 8px;
@@ -150,10 +146,9 @@
     .status-badge.portal    { background: rgba(180,120,255,.2); color: #C89AFF; }
     .status-badge.challenge { background: rgba(255,102,196,.2); color: var(--flourish-pink); }
     .status-badge.win       { background: rgba(193,255,114,.25); color: var(--flourish-green); animation: pulse 1s infinite; }
-    .status-badge.fact      { background: rgba(0,163,255,0.2); color: var(--flourish-blue); } /* New for facts */
+    .status-badge.fact      { background: rgba(0,163,255,0.2); color: var(--flourish-blue); } 
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
 
-    /* ── POS DISPLAY ── */
     .pos-display {
       background: rgba(255,255,255,0.15);
       padding: 8px 20px; border-radius: 15px;
@@ -170,7 +165,6 @@
     }
     .adjust-btn:active { background: rgba(255,255,255,.35); }
 
-    /* ── CHALLENGE OVERLAY ── */
     .challenge-overlay {
       display: none; position: fixed; inset: 0; z-index: 95;
       background: rgba(3, 30, 18, 0.92);
@@ -223,7 +217,6 @@
     }
     .challenge-skip-btn:active { opacity: .5; }
 
-    /* ── RESET BUTTON ── */
     .reset-btn {
       margin-top: 15px; padding: 8px 25px;
       background: var(--flourish-pink); color: white;
@@ -236,7 +229,6 @@
     }
     .reset-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #b33a80; }
 
-    /* ── PROGRESS TRACK ── */
     .progress-track {
       display: flex; gap: 3px; padding: 0 20px;
       width: calc(100% - 40px); max-width: 380px;
@@ -249,7 +241,6 @@
     .progress-dot.p1 { background: var(--flourish-green); }
     .progress-dot.p2 { background: var(--flourish-pink); }
 
-    /* ── EVENT LOG ── */
     .event-log {
       width: calc(100% - 40px); max-width: 380px;
       background: rgba(0,0,0,.25); border-radius: 12px;
@@ -261,9 +252,6 @@
     .log-row.oldest { opacity: .18; }
     .log-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--flourish-green); margin-top: 4px; flex-shrink: 0; }
 
-
-
-    /* ── WIN OVERLAY ── */
     .overlay {
       display: none; position: fixed; inset: 0; z-index: 90;
       flex-direction: column; align-items: center; justify-content: center;
@@ -284,7 +272,6 @@
     }
     .play-again-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #89b351; }
 
-    /* ── QUIZ WAITING OVERLAY ── */
     .quiz-overlay {
       display: none; position: fixed; inset: 0; z-index: 90;
       flex-direction: column; align-items: center; justify-content: center;
@@ -387,25 +374,47 @@
 
 <script>
 // ══════════════════════════════════════════════════
+//  HOVERLAY AUDIO SWITCHING TRIGGERS
+// ══════════════════════════════════════════════════
+let musicStarted = false;
+
+function initMusic() {
+  if (!musicStarted) {
+    HQ.add('play-main-music'); // Trigger Hoverlay Sequence A
+    musicStarted = true;
+  }
+}
+
+function switchToQuizMusic() {
+  HQ.add('stop-main-music'); // Trigger Hoverlay Sequence C
+  HQ.add('play-quiz-music'); // Trigger Hoverlay Sequence B
+}
+
+function switchToMainMusic() {
+  HQ.add('stop-quiz-music'); // Trigger Hoverlay Sequence D
+  HQ.add('play-main-music'); // Trigger Hoverlay Sequence A
+}
+
+// ══════════════════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════════════════
 const CONFIG = {
   WIN_SPOT:          20,
-  ANIMATION_DELAY: 4000,   // ms — wait for Hoverlay trap/portal animation
-  FACT_DELAY:       10000,   // ms - show fact panels for 10 seconds
-  DICE_ANIM_MS:    1800,   // must match CSS transition 1.8s
+  ANIMATION_DELAY: 4000,
+  FACT_DELAY:       10000,
+  DICE_ANIM_MS:    1800,
   QUIZ_PAGE:       'flourish-quiz.html',
 };
 
 const SPECIAL_SPOTS = {
    1: { type: 'shortcut',  delta:  1,  label: '🥬 Radish Power! +1 Spot'    },
-   2: { type: 'fact',      label: '💡 FUN FACT: Dark Greens' }, // New
+   2: { type: 'fact',      label: '💡 FUN FACT: Dark Greens' },
    3: { type: 'portal',    to:     7,  label: '🌀 Portal Jump to Spot 7!'   },
    5: { type: 'trap',      delta: -1,  label: '🍟 Fry Grease! −1 Spot'      },
-   8: { type: 'fact',      label: '💡 FUN FACT: Dehydration' }, // New
+   8: { type: 'fact',      label: '💡 FUN FACT: Dehydration' },
   10: { type: 'challenge', bonus:   1, label: '⚡ Health Challenge! +1 Bonus' },
   12: { type: 'shortcut',  delta:  3,  label: '🍇 Berry Boost! +3 Spots'    },
-  13: { type: 'fact',      label: '💡 FUN FACT: Whole Grains' }, // New
+  13: { type: 'fact',      label: '💡 FUN FACT: Whole Grains' },
   15: { type: 'challenge', bonus:   2, label: '⚡ Health Challenge! +2 Bonus' },
   16: { type: 'trap',      delta: -2,  label: '🍔 Burger Slump! −2 Spots'   },
   19: { type: 'trap',      delta: -5,  label: '🍟 Fry Trap! −5 Spots'       },
@@ -420,7 +429,6 @@ const KEYS = {
   QUIZ_RESULT:  'frd_quiz_result',
 };
 
-// Dice face-to-rotation mapping (original logic)
 const faceRotations = {
   1: { x: 0,   y: 0   },
   2: { x: 0,   y: -90 },
@@ -429,7 +437,7 @@ const faceRotations = {
   5: { x: -90, y: 0   },
   6: { x: 90,  y: 0   },
 };
-  //state
+
 let currentPlayer = parseInt(localStorage.getItem(KEYS.PLAYER)) || 1;
 let positions = {
   1: parseInt(localStorage.getItem(KEYS.P1)) || 0,
@@ -437,13 +445,11 @@ let positions = {
 };
 let isRolling      = false;
 let waitingForQuiz = false;
-let showingFact    = false; // New lock for facts
+let showingFact    = false;
 let currentX = 0, currentY = 0;
 let logEntries = [];
-// Tracks total rolls made across both players this game session
 let totalRolls = parseInt(localStorage.getItem('flourish_total_rolls')) || 0;
 
-// trigger
 const HQ = {
   queue: [], running: false,
   MIN_GAP: 350,
@@ -457,13 +463,11 @@ const HQ = {
     while (this.queue.length) {
       const { trigger, delayAfter } = this.queue.shift();
       this._fire(trigger);
-      
       await sleep(Math.max(this.MIN_GAP, delayAfter));
     }
     this.running = false;
   },
   _fire(trigger) {
-    
     try {
       const f = document.createElement('iframe');
       f.style.cssText = 'display:none;width:0;height:0;border:none;position:absolute;';
@@ -471,19 +475,16 @@ const HQ = {
       document.body.appendChild(f);
       setTimeout(() => { try { f.remove(); } catch(_){} }, 1000);
     } catch(_) {}
-   
     try { window.parent.postMessage({ hoverlay: trigger, type: 'hoverlay-trigger' }, '*'); } catch(_) {}
-    debugLog(trigger, '#C1FF72', 'fired');
   },
 };
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-//utilities
 function addLog(msg, type) {
   logEntries.unshift({ msg, type });
   if (logEntries.length > 3) logEntries.pop();
-  const colors = { shortcut: '#C1FF72', trap: '#FF8080', portal: '#C89AFF', challenge: '#FF66C4', fact: '#00A3FF' }; // Added fact color
+  const colors = { shortcut: '#C1FF72', trap: '#FF8080', portal: '#C89AFF', challenge: '#FF66C4', fact: '#00A3FF' };
   document.getElementById('event-log').innerHTML = logEntries.map((e, i) => `
     <div class="log-row ${i===1?'old':i===2?'oldest':''}">
       <div class="log-dot" style="${colors[e.type]?`background:${colors[e.type]}`:''}"></div>
@@ -496,8 +497,6 @@ function setStatus(text, type = '') {
   b.textContent = text;
   b.className = `status-badge${type ? ' ' + type : ''}`;
 }
-
-function debugLog() {} // removed — no debug panel
 
 function saveState() {
   localStorage.setItem(KEYS.P1,     positions[1]);
@@ -532,20 +531,19 @@ function updateUI() {
   for (let i = 1; i <= 2; i++) {
     document.getElementById(`card-p${i}`).classList.toggle('active', i === p);
   }
-  const locked = isRolling || waitingForQuiz || showingFact; // Locked during facts
+  const locked = isRolling || waitingForQuiz || showingFact;
   document.getElementById('dice-scene').style.cursor = locked ? 'not-allowed' : 'pointer';
   document.getElementById('switch-btn').disabled = locked;
   updateProgressTrack();
   saveState();
 }
 
-//roll
 function rollDice() {
-  if (isRolling || waitingForQuiz || showingFact) return; // Prevent roll
+  if (isRolling || waitingForQuiz || showingFact) return;
+  initMusic(); 
   isRolling = true;
   updateUI();
 
- //fakey role :)
   const maxRoll = totalRolls < 2 ? 4 : 6;
   const result  = Math.floor(Math.random() * maxRoll) + 1;
   totalRolls++;
@@ -585,11 +583,9 @@ function rollDice() {
   }, CONFIG.DICE_ANIM_MS);
 }
 
-
 async function processSpecialSpot(player, spot) {
   const special = SPECIAL_SPOTS[spot];
   if (!special) { setStatus('Ready to roll!'); return; }
-
 
   if (special.type === 'fact') {
     showingFact = true; 
@@ -597,16 +593,9 @@ async function processSpecialSpot(player, spot) {
     setStatus(special.label, 'fact'); 
     addLog(special.label, 'fact'); 
     document.getElementById('message-box').textContent = special.label; 
-
-
     HQ.add(`show-fact-${spot}`);
-
-
     await sleep(CONFIG.FACT_DELAY);
-
-    
     HQ.add(`hide-fact-${spot}`);
-
     showingFact = false; 
     setStatus('Ready to roll!');
     document.getElementById('message-box').textContent = `Player ${player}'s Turn`;
@@ -618,45 +607,27 @@ async function processSpecialSpot(player, spot) {
     setStatus(special.label, 'challenge');
     addLog(`P${player} hit a Challenge on Spot ${spot}!`, 'challenge');
     HQ.add(`challenge-spot-${spot}`);
-    
-    document.getElementById('challenge-overlay-title').textContent =
-      `Spot ${spot} — Health Challenge!`;
-    document.getElementById('challenge-overlay-sub').innerHTML =
-      `Answer correctly to earn <strong style="color:var(--flourish-green)">+${special.bonus} bonus move${special.bonus > 1 ? 's' : ''}</strong>!`;
+    document.getElementById('challenge-overlay-title').textContent = `Spot ${spot} — Health Challenge!`;
+    document.getElementById('challenge-overlay-sub').innerHTML = `Answer correctly to earn <strong style="color:var(--flourish-green)">+${special.bonus} bonus move${special.bonus > 1 ? 's' : ''}</strong>!`;
     document.getElementById('challenge-overlay').classList.add('active');
-    return; // 
+    return;
   }
 
   const badgeType = special.type === 'trap' ? 'trap' : special.type === 'portal' ? 'portal' : 'shortcut';
   setStatus(special.label, badgeType);
   addLog(`Spot ${spot}: ${special.label}`, special.type);
   document.getElementById('message-box').textContent = special.label;
-
-  
   HQ.add(`special-${special.type}-${spot}`);
-
   await sleep(CONFIG.ANIMATION_DELAY);
-
-  
-  const finalPos = special.type === 'portal'
-    ? special.to
-    : Math.max(1, Math.min(CONFIG.WIN_SPOT, spot + special.delta));
-
-  
+  const finalPos = special.type === 'portal' ? special.to : Math.max(1, Math.min(CONFIG.WIN_SPOT, spot + special.delta));
   positions[player] = finalPos;
   document.getElementById('position-text').textContent = `Spot: ${finalPos}`;
   addLog(`→ P${player} now at Spot ${finalPos}`, special.type);
-  setStatus(`Now at Spot ${finalPos}`);
-
-  
   HQ.add(`spot-${finalPos}`);
   updateUI();
-
   if (finalPos >= CONFIG.WIN_SPOT) { handleWin(player); return; }
-
   await processSpecialSpot(player, finalPos);
 }
-
 
 function launchQuiz() {
   const p      = currentPlayer;
@@ -669,11 +640,12 @@ function launchQuiz() {
   }));
   localStorage.removeItem(KEYS.QUIZ_RESULT);
 
+  switchToQuizMusic(); // TRIGGER AUDIO SWAP VIA HQ
+
   window.open(CONFIG.QUIZ_PAGE, '_blank');
 
   waitingForQuiz = true;
-  document.getElementById('quiz-overlay-sub').textContent =
-    `Player ${p} is answering the Spot ${spot} challenge…`;
+  document.getElementById('quiz-overlay-sub').textContent = `Player ${p} is answering the Spot ${spot} challenge…`;
   document.getElementById('challenge-overlay').classList.remove('active');
   document.getElementById('quiz-overlay').classList.add('active');
   HQ.add(`quiz-open-spot${spot}-p${p}`);
@@ -691,6 +663,7 @@ function skipChallenge() {
 function cancelQuiz() {
   waitingForQuiz = false;
   isRolling = false;
+  switchToMainMusic(); // RESUME AUDIO VIA HQ
   localStorage.removeItem(KEYS.QUIZ_CONTEXT);
   localStorage.removeItem(KEYS.QUIZ_RESULT);
   document.getElementById('quiz-overlay').classList.remove('active');
@@ -713,6 +686,8 @@ async function applyQuizResult(result) {
   waitingForQuiz = false;
   document.getElementById('quiz-overlay').classList.remove('active');
 
+  switchToMainMusic(); // RESUME AUDIO VIA HQ
+
   const p = result.player;
 
   if (result.correct && result.bonus > 0) {
@@ -721,13 +696,11 @@ async function applyQuizResult(result) {
     setStatus(`+${result.bonus} Bonus!`, 'shortcut');
     HQ.add(`quiz-correct-spot${result.spot}`);
     await sleep(700);
-
     const newPos = Math.min(positions[p] + result.bonus, CONFIG.WIN_SPOT);
     positions[p] = newPos;
     HQ.add(`spot-${newPos}`);
     addLog(`→ P${p} moved to Spot ${newPos}`, 'shortcut');
     updateUI();
-
     if (newPos >= CONFIG.WIN_SPOT) { isRolling = false; handleWin(p); return; }
     await processSpecialSpot(p, newPos);
   } else {
@@ -736,14 +709,12 @@ async function applyQuizResult(result) {
     setStatus('No bonus this round');
     HQ.add(`quiz-wrong-spot${result.spot}`);
   }
-
   isRolling = false;
   updateUI();
 }
 
-
 function togglePlayer() {
-  if (isRolling || waitingForQuiz || showingFact) return; // Prevent switch
+  if (isRolling || waitingForQuiz || showingFact) return;
   currentPlayer = currentPlayer === 1 ? 2 : 1;
   document.getElementById('challenge-overlay').classList.remove('active');
   HQ.add(`active-player-${currentPlayer}`);
@@ -780,14 +751,12 @@ function confirmReset() {
   document.getElementById('quiz-overlay').classList.remove('active');
   document.getElementById('challenge-overlay').classList.remove('active');
   document.getElementById('message-box').textContent = "Player 1's Turn";
-  document.getElementById('event-log').innerHTML =
-    '<div class="log-row"><div class="log-dot"></div><span>Game reset — good luck!</span></div>';
+  document.getElementById('event-log').innerHTML = '<div class="log-row"><div class="log-dot"></div><span>Game reset — good luck!</span></div>';
   setStatus('Ready to roll!');
   HQ.add('game-reset');
   HQ.add('active-player-1');
   updateUI();
 }
-
 
 document.getElementById('dice-scene').addEventListener('click', rollDice);
 updateProgressTrack();
