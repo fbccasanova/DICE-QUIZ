@@ -6,6 +6,7 @@
   <title>Flourish 2-Player Controller</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* ... (Keep all your existing CSS the same) ... */
     :root {
       --dice-size: 100px;
       --pip-size: 18px;
@@ -380,19 +381,24 @@ let musicStarted = false;
 
 function initMusic() {
   if (!musicStarted) {
-    HQ.add('play-main-music'); // Trigger Hoverlay Sequence A
+    HQ.add('play-main-music'); 
     musicStarted = true;
   }
 }
 
 function switchToQuizMusic() {
-  HQ.add('stop-main-music'); // Trigger Hoverlay Sequence C
-  HQ.add('play-quiz-music'); // Trigger Hoverlay Sequence B
+  HQ.add('stop-main-music'); 
+  // 50ms delay helps Hoverlay native engine process sequential events
+  setTimeout(() => {
+    HQ.add('play-quiz-music'); 
+  }, 50);
 }
 
 function switchToMainMusic() {
-  HQ.add('stop-quiz-music'); // Trigger Hoverlay Sequence D
-  HQ.add('play-main-music'); // Trigger Hoverlay Sequence A
+  HQ.add('stop-quiz-music'); 
+  setTimeout(() => {
+    HQ.add('play-main-music'); 
+  }, 50);
 }
 
 // ══════════════════════════════════════════════════
@@ -640,7 +646,7 @@ function launchQuiz() {
   }));
   localStorage.removeItem(KEYS.QUIZ_RESULT);
 
-  switchToQuizMusic(); // TRIGGER AUDIO SWAP VIA HQ
+  switchToQuizMusic(); 
 
   window.open(CONFIG.QUIZ_PAGE, '_blank');
 
@@ -663,7 +669,7 @@ function skipChallenge() {
 function cancelQuiz() {
   waitingForQuiz = false;
   isRolling = false;
-  switchToMainMusic(); // RESUME AUDIO VIA HQ
+  switchToMainMusic(); 
   localStorage.removeItem(KEYS.QUIZ_CONTEXT);
   localStorage.removeItem(KEYS.QUIZ_RESULT);
   document.getElementById('quiz-overlay').classList.remove('active');
@@ -686,7 +692,7 @@ async function applyQuizResult(result) {
   waitingForQuiz = false;
   document.getElementById('quiz-overlay').classList.remove('active');
 
-  switchToMainMusic(); // RESUME AUDIO VIA HQ
+  switchToMainMusic(); 
 
   const p = result.player;
 
