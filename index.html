@@ -388,17 +388,13 @@
   }
 
   function switchToQuizMusic() {
-    HQ.add('stop-main-music'); 
-    setTimeout(() => {
-      HQ.add('play-quiz-music'); 
-    }, 50); 
+    HQ.add('stop-main-music');
+    HQ.add('play-quiz-music');
   }
 
   function switchToMainMusic() {
     HQ.add('stop-quiz-music'); 
-    setTimeout(() => {
-      HQ.add('play-main-music'); 
-    }, 50);
+    HQ.add('play-main-music'); 
   }
 
 const CONFIG = {
