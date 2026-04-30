@@ -374,9 +374,8 @@
   </div>
 
 <script>
-// ══════════════════════════════════════════════════
-//  HOVERLAY AUDIO SWITCHING TRIGGERS
-// ══════════════════════════════════════════════════
+
+  //aUDIOstuff
 let musicStarted = false;
 
 function initMusic() {
@@ -388,10 +387,9 @@ function initMusic() {
 
 function switchToQuizMusic() {
   HQ.add('stop-main-music'); 
-  // 50ms delay helps Hoverlay native engine process sequential events
   setTimeout(() => {
     HQ.add('play-quiz-music'); 
-  }, 50);
+  }, 50); 
 }
 
 function switchToMainMusic() {
@@ -400,10 +398,8 @@ function switchToMainMusic() {
     HQ.add('play-main-music'); 
   }, 50);
 }
+}
 
-// ══════════════════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════════════════
 const CONFIG = {
   WIN_SPOT:          20,
   ANIMATION_DELAY: 4000,
