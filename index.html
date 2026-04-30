@@ -375,27 +375,6 @@
 
 <script>
 
-  // ══════════════════════════════════════════════════
-  //  AUDIO SWITCHING TRIGGERS
-  // ══════════════════════════════════════════════════
-  let musicStarted = false;
-
-  function initMusic() {
-    if (!musicStarted) {
-      HQ.add('play-main-music'); 
-      musicStarted = true;
-    }
-  }
-
-  function switchToQuizMusic() {
-    HQ.add('stop-main-music');
-    HQ.add('play-quiz-music');
-  }
-
-  function switchToMainMusic() {
-    HQ.add('stop-quiz-music'); 
-    HQ.add('play-main-music'); 
-  }
 
 const CONFIG = {
   WIN_SPOT:          20,
@@ -539,7 +518,6 @@ function updateUI() {
 
 function rollDice() {
   if (isRolling || waitingForQuiz || showingFact) return;
-  initMusic(); 
   isRolling = true;
   updateUI();
 
@@ -639,8 +617,6 @@ function launchQuiz() {
   }));
   localStorage.removeItem(KEYS.QUIZ_RESULT);
 
-  switchToQuizMusic(); 
-
   window.open(CONFIG.QUIZ_PAGE, '_blank');
 
   waitingForQuiz = true;
@@ -662,7 +638,6 @@ function skipChallenge() {
 function cancelQuiz() {
   waitingForQuiz = false;
   isRolling = false;
-  switchToMainMusic(); 
   localStorage.removeItem(KEYS.QUIZ_CONTEXT);
   localStorage.removeItem(KEYS.QUIZ_RESULT);
   document.getElementById('quiz-overlay').classList.remove('active');
@@ -684,8 +659,6 @@ async function applyQuizResult(result) {
   localStorage.setItem(KEYS.QUIZ_RESULT, JSON.stringify({ ...result, applied: true }));
   waitingForQuiz = false;
   document.getElementById('quiz-overlay').classList.remove('active');
-
-  switchToMainMusic(); 
 
   const p = result.player;
 
