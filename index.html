@@ -719,6 +719,7 @@ function togglePlayer() {
   if (isRolling || waitingForQuiz || showingFact) return;
   currentPlayer = currentPlayer === 1 ? 2 : 1;
   document.getElementById('challenge-overlay').classList.remove('active');
+  HQ.add(`spot-${positions[currentPlayer]}`); 
   HQ.add(`active-player-${currentPlayer}`);
   addLog(`Turn passed to Player ${currentPlayer}`);
   setStatus('Ready to roll!');
